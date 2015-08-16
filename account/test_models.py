@@ -5,14 +5,19 @@ from .models import Account
 
 class AccountModelTest(TestCase):
 
-    def test_can_create_ordinary_user(self):
+    def create_valid_account(self):
         account = Account.objects.create_user(
             email='pop1111@tut.by',
-            password='homm1994',
             phone='+375333172375',
             first_name='Andrew',
             last_name='Popov',
+            password='homm1994'
         )
+        return account
+
+
+    def test_can_create_ordinary_user(self):
+        account = self.create_valid_account()
         self.assertEqual(account.email, 'pop1111@tut.by')
         self.assertEqual(account.phone, '+375333172375')
         self.assertEqual(account.first_name, 'Andrew')
@@ -77,43 +82,19 @@ class AccountModelTest(TestCase):
         )
 
     def test_updates_object(self):
-        account = Account.objects.create_user(
-            email='pop1111@tut.by',
-            phone='+375333172375',
-            first_name='Andrew',
-            last_name='Popov',
-            password='homm1994'
-        )
+        account = self.create_valid_account()
         account.first_name = 'Sam'
         account.save()
         self.assertEqual(account.first_name, 'Sam')
 
     def test_str(self):
-        account = Account.objects.create_user(
-            email='pop1111@tut.by',
-            phone='+375333172375',
-            first_name='Andrew',
-            last_name='Popov',
-            password='homm1994'
-        )
+        account = self.create_valid_account()
         self.assertEqual(account.__str__(), 'pop1111@tut.by')
 
     def test_get_short_name(self):
-        account = Account.objects.create(
-            email='pop1111@tut.by',
-            phone='+375333172375',
-            first_name='Andrew',
-            last_name='Popov',
-            password='homm1994'
-        )
+        account = self.create_valid_account()
         self.assertEqual(account.get_short_name(), 'Andrew')
 
     def test_get_full_name(self):
-        account = Account.objects.create(
-            email='pop1111@tut.by',
-            phone='+375333172375',
-            first_name='Andrew',
-            last_name='Popov',
-            password='homm1994'
-        )
+        account = self.create_valid_account()
         self.assertEqual(account.get_full_name(), 'Andrew Popov')
