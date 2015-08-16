@@ -34,6 +34,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'account',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -105,3 +106,7 @@ STATIC_URL = '/static/'
 # Media url
 
 MEDIA_URL = '/media/'
+
+# Auth user model
+
+AUTH_USER_MODEL = 'account.Account'
