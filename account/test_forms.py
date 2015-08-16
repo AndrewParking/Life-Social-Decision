@@ -44,4 +44,4 @@ class UpdateAccountFormTest(TestCase):
         form = UpdateAccountForm({
             'tagline': 'we do not saw'
         })
-        self.assertTrue(form.is_valid())
+        self.assertFalse(form.is_valid())

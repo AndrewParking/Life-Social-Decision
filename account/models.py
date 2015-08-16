@@ -47,7 +47,7 @@ class Account(AbstractBaseUser):
     first_name = models.CharField(max_length=100, blank=True)
     last_name = models.CharField(max_length=100, blank=True)
     phone = models.CharField(max_length=25, unique=True)
-    photo = models.ImageField(upload_to='avatars')
+    photo = models.ImageField(upload_to='avatars', blank=True)
     tagline = models.CharField(max_length=250, blank=True)
     about = models.TextField(blank=True)
     vk_link = models.CharField(max_length=100, blank=True)
@@ -84,7 +84,7 @@ class Account(AbstractBaseUser):
     def save(self, *args, **kwargs):
         if not kwargs.get('email') and not self.email:
             raise ValidationError('We need your email.')
-        if not kwargs.get('phone') and not self.phone: 
+        if not kwargs.get('phone') and not self.phone:
             raise ValidationError('We need your phone.')
         return super(Account, self).save(*args, **kwargs)
 

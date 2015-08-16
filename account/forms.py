@@ -21,9 +21,10 @@ class CreateAccountForm(UserCreationForm):
             'fb_link',
             'in_link',
         )
-    """
+
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request')
+        if kwargs.get('request'):
+            self.request = kwargs.pop('request')
         return super(CreateAccountForm, self).__init__(*args, **kwargs)
 
     def login_user(self):
@@ -34,4 +35,25 @@ class CreateAccountForm(UserCreationForm):
             password=password
         )
         login(self.request, user)
-    """
+
+
+class UpdateAccountForm(UserChangeForm):
+
+    def clean_password(self):
+        return self.initial.get('password')
+
+    class Meta:
+        model = Account
+        fields = (
+            'email',
+            'first_name',
+            'last_name',
+            'phone',
+            'photo',
+            'tagline',
+            'about',
+            'vk_link',
+            'tw_link',
+            'fb_link',
+            'in_link',
+        )
