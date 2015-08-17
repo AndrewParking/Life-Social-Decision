@@ -48,15 +48,19 @@ class ProfileViewTest(TestCase):
 
 class CreateAccountViewTest(TestCase):
 
-    def setUp(self):
-        self.factory = RequestFactory()
-
     def test_renders_right_template(self):
         response = self.client.get(reverse('account:create_account'))
         self.assertTemplateUsed(response, 'account/create_account.html')
 
-    # def test_redirects_authed_user(self):
-        # the body of the test
+    def test_redirects_authed_user(self):
+        self.user = Account.objects.create_user(
+            email='pop@tut.by',
+            phone='+375333172375',
+            password='homm1994'
+        )
+        self.client.login(email=self.user.email, password='homm1994')
+        response = self.client.get(reverse('account:create_account'))
+        self.assertRedirects(response, reverse('account:profile', args=(self.user.id,)))
 
     def test_creates_user_if_form_is_valid(self):
         response = self.client.post(reverse('account:create_account'), {

@@ -36,8 +36,11 @@ class CreateAccountView(FormView):
     form_class = CreateAccountForm
     template_name = 'account/create_account.html'
 
-    # here would be overriden dispatch method to redirect authed users to
-    # their profile pagel
+    def dispatch(self, *args, **kwargs):
+        user = self.request.user
+        if user.is_authenticated():
+            return HttpResponseRedirect(reverse_lazy('account:profile', args=(user.id,)))
+        return super(CreateAccountView, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
         return reverse_lazy('account:profile', args=(self.request.user.id,))
