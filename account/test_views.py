@@ -90,3 +90,44 @@ class CreateAccountViewTest(TestCase):
             'password2': 'homm1995'
         })
         self.assertTemplateUsed(response, 'account/create_account.html')
+
+
+class UpdateAccountViewTest(TestCase):
+
+    def test_redirects_anon_user(self):
+        response = self.client.get(reverse('account:update_account'))
+        self.assertRedirects(response, reverse('account:create_account'))
+
+    def test_renders_right_template(self):
+        self.user = Account.objects.create_user(
+            email='pop@tut.by',
+            phone='+375333172375',
+            password='homm1994'
+        )
+        self.client.login(email=self.user.email, password='homm1994')
+        response = self.client.get(reverse('account:update_account'))
+        self.assertTemplateUsed(response, 'account/update_account.html')
+
+    def test_updates_account_when_form_is_valid(self):
+        self.user = Account.objects.create_user(
+            email='pop@tut.by',
+            phone='+375333172375',
+            password='homm1994'
+        )
+        self.client.login(email=self.user.email, password='homm1994')
+        self.client.post(reverse('account:update_account'), {
+            'first_name': 'Andrew'
+        })
+        self.assertEqual(self.user.first_name, 'Andrew')
+
+    def test_renders_template_when_form_is_invalid(self):
+        self.user = Account.objects.create_user(
+            email='pop@tut.by',
+            phone='+375333172375',
+            password='homm1994'
+        )
+        self.client.login(email=self.user.email, password='homm1994')
+        response = self.client.post(reverse('account:update_account'), {
+            'email': ''
+        })
+        self.assertTemplateUsed(response, 'account/update_account.html')
