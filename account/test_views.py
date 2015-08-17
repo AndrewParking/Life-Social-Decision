@@ -5,6 +5,47 @@ from .views import CreateAccountView
 from .models import Account
 
 
+class DefaultRedirectViewTest(TestCase):
+
+    def test_redirects_anon_user(self):
+        response = self.client.get(reverse('account:default_page'))
+        self.assertRedirects(response, reverse('account:create_account'))
+
+
+    def test_redirects_authed_user(self):
+        self.user = Account.objects.create_user(
+            email='pop@tut.by',
+            phone='+375333172375',
+            password='homm1994'
+        )
+        self.client.login(email=self.user.email, password='homm1994')
+        response = self.client.get(reverse('account:default_page'))
+        self.assertRedirects(response, reverse('account:profile', args=(self.user.id,)))
+
+
+class ProfileViewTest(TestCase):
+
+    def test_redirects_anon_user(self):
+        account = Account.objects.create_user(
+            email='pop@tut.by',
+            phone='+375333172375',
+            password='homm1994'
+        )
+        response = self.client.get(reverse('account:profile', args=(account.id,)))
+        self.assertRedirects(response, reverse('account:create_account'))
+
+
+    def test_renders_right_template(self):
+        self.user = Account.objects.create_user(
+            email='pop@tut.by',
+            phone='+375333172375',
+            password='homm1994'
+        )
+        self.client.login(email=self.user.email, password='homm1994')
+        response = self.client.get(reverse('account:profile', args=(self.user.id,)))
+        self.assertTemplateUsed(response, 'profile.html')
+
+
 class CreateAccountViewTest(TestCase):
 
     def setUp(self):
