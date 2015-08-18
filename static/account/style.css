@@ -1,10 +1,19 @@
 * {
   box-sizing: border-box;
 }
+.content {
+  margin-top: 20px;
+  padding: 30px;
+}
 .form-wrapper {
   width: 500px;
   margin: 30px auto;
   padding: 30px;
+}
+.with-aside {
+  width: 650px;
+  margin-top: 0;
+  padding-top: 10px;
 }
 input[type="text"]:focus,
 input[type="email"]:focus,

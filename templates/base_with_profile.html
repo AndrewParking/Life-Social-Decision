@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block page %}
+    <div class="panel col-md-3 profile">
+        <img src="{{ user.photo.url }}">
+        <div class="profile-content">
+            <h3>{{ user.first_name }} {{ user.last_name }}</h3>
+            <ul>
+                <li><h4>Email:</h4> {{ user.email }}</li>
+                <li><h4>Phone:</h4> {{ user.phone }}</li>
+            {% if user.in_link %}
+                <li><h4>Instagram:</h4> {{ user.in_link }}</li>
+            {% endif %}
+            {% if user.tw_link %}
+                <li><h4>Twitter:</h4> {{ user.tw_link }}</li>
+            {% endif %}
+            {% if user.vk_link %}
+                <li><h4>Vk:</h4> {{ user.vk_link }}</li>
+            {% endif %}
+            {% if user.fb_link %}
+                <li><h4>Facebook:</h4> {{ user.fb_link }}</li>
+            {% endif %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-md-1"></div>
+
+    <div class="panel col-md-8 content">
+        {% block content %}{% endblock content %}
+    </div>
+{% endblock page %}

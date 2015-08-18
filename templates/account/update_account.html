@@ -1,21 +1,9 @@
-{% extends 'account/base_form.html' %}
+{% extends 'base_with_profile.html' %}
 
 {% load bootstrap %}
 
-{% block header %}
-    <header>
-        <div class="container">
-            <a href="{% url 'account:default_page' %}" class="col-md-2 logo">Life social decisions</a>
-            <div class="col-md-4"></div>
-            <ul class="col-md-6">
-                <li><a href="{% url 'account:logout' %}">Logout</a></li>
-                <li><a href="{% url 'account:profile' user.id %}">Profile</a></li>
-            </ul>
-        </div>
-    </header>
-{% endblock header %}
-
-{% block form %}
+{% block content %}
+<div class="form-wrapper with-aside">
     <form action='{% url 'account:update_account' %}' method='POST' enctype='multipart/form-data' role='form'>
     {% csrf_token %}
         <legend>Update Account</legend>
@@ -25,4 +13,5 @@
             <a href="{% url 'account:profile' user.id %}" class="btn">Back to profile</a>
         </div>
     </form>
-{% endblock form %}
+</div>
+{% endblock content %}
