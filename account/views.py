@@ -1,8 +1,10 @@
 from django.http import HttpResponseRedirect
+from django.contrib.auth import logout, authenticate, login
+from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render
 from django.forms.models import model_to_dict
 from django.core.urlresolvers import reverse_lazy
-from django.views.generic import DetailView
+from django.views.generic import DetailView, View
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import FormView
 from .forms import CreateAccountForm, UpdateAccountForm
@@ -67,9 +69,42 @@ class UpdateAccountView(FormView):
             return HttpResponseRedirect(reverse_lazy('account:create_account'))
         return super(UpdateAccountView, self).dispatch(*args, **kwargs)
 
+    def get_form_kwargs(self):
+        kwargs = super(UpdateAccountView, self).get_form_kwargs()
+        kwargs['instance'] = self.request.user
+        return kwargs
+
     def get_success_url(self):
         return reverse_lazy('account:profile', args=(self.request.user.id,))
 
     def form_valid(self, form):
         form.save()
         return super(UpdateAccountView, self).form_valid(form)
+
+
+class LoginView(FormView):
+    form_class = AuthenticationForm
+    template_name = 'account/login.html'
+
+    def dispatch(self, *args, **kwargs):
+        user = self.request.user
+        if user.is_authenticated():
+            return HttpResponseRedirect(reverse_lazy('account:profile', args=(user.id,)))
+        return super(LoginView, self).dispatch(*args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('account:profile', args=(self.request.user.id,))
+
+    def form_valid(self, form):
+        user = form.get_user()
+        form.confirm_login_allowed(user)
+        login(self.request, user)
+        return super(LoginView, self).form_valid(form)
+
+
+class LogoutView(RedirectView):
+    permanent = False
+
+    def get_redirect_url(self, *args, **kwargs):
+        logout(self.request)
+        return reverse_lazy('account:login')

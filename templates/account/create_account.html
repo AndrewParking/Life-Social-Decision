@@ -1,0 +1,14 @@
+{% extends 'account/base_form.html' %}
+
+{% load bootstrap %}
+
+{% block form %}
+    <form action='{% url 'account:create_account' %}' method='POST' enctype='multipart/form-data' role='form'>
+    {% csrf_token %}
+        <legend>Create Account</legend>
+        {{ form | bootstrap }}
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Create account</button>
+        </div>
+    </form>
+{% endblock form %}
