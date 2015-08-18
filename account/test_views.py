@@ -108,18 +108,6 @@ class UpdateAccountViewTest(TestCase):
         response = self.client.get(reverse('account:update_account'))
         self.assertTemplateUsed(response, 'account/update_account.html')
 
-    def test_updates_account_when_form_is_valid(self):
-        self.user = Account.objects.create_user(
-            email='pop@tut.by',
-            phone='+375333172375',
-            password='homm1994'
-        )
-        self.client.login(email=self.user.email, password='homm1994')
-        self.client.post(reverse('account:update_account'), {
-            'first_name': 'Andrew'
-        })
-        self.assertEqual(self.user.first_name, 'Andrew')
-
     def test_renders_template_when_form_is_invalid(self):
         self.user = Account.objects.create_user(
             email='pop@tut.by',

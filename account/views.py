@@ -1,10 +1,11 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
+from django.forms.models import model_to_dict
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic import DetailView
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import FormView
-from .forms import CreateAccountForm
+from .forms import CreateAccountForm, UpdateAccountForm
 from .models import Account
 
 # Create your views here.
@@ -55,3 +56,20 @@ class CreateAccountView(FormView):
         form.save()
         form.login_user()
         return super(CreateAccountView, self).form_valid(form)
+
+
+class UpdateAccountView(FormView):
+    form_class = UpdateAccountForm
+    template_name = 'account/update_account.html'
+
+    def dispatch(self, *args, **kwargs):
+        if not self.request.user.is_authenticated():
+            return HttpResponseRedirect(reverse_lazy('account:create_account'))
+        return super(UpdateAccountView, self).dispatch(*args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('account:profile', args=(self.request.user.id,))
+
+    def form_valid(self, form):
+        form.save()
+        return super(UpdateAccountView, self).form_valid(form)
