@@ -47,7 +47,7 @@ class Account(AbstractBaseUser):
     first_name = models.CharField(max_length=100, blank=True)
     last_name = models.CharField(max_length=100, blank=True)
     phone = models.CharField(max_length=25, unique=True)
-    photo = models.ImageField(upload_to='avatars', blank=True)
+    photo = models.ImageField(upload_to='avatars', default='/static/images/anon.png')
     tagline = models.CharField(max_length=250, blank=True)
     about = models.TextField(blank=True)
     vk_link = models.CharField(max_length=100, blank=True)

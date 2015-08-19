@@ -119,3 +119,67 @@ class UpdateAccountViewTest(TestCase):
             'email': ''
         })
         self.assertTemplateUsed(response, 'account/update_account.html')
+
+
+class LoginViewTest(TestCase):
+
+    def test_redirects_authed_user(self):
+        self.user = Account.objects.create_user(
+            email='pop@tut.by',
+            phone='+375333172375',
+            password='homm1994'
+        )
+        self.client.login(email=self.user.email, password='homm1994')
+        response = self.client.get(reverse('account:login'))
+        self.assertRedirects(response, reverse('account:profile', args=(self.user.id,)))
+
+    def test_renders_right_template(self):
+        response = self.client.get(reverse('account:login'))
+        self.assertTemplateUsed(response, 'account/login.html')
+
+    def test_authenticates_user_if_form_is_valid(self):
+        self.user = Account.objects.create_user(
+            email='pop@tut.by',
+            phone='+375333172375',
+            password='homm1994'
+        )
+        self.client.post(reverse('account:login'), {
+            'username': 'pop@tut.by',
+            'password': 'homm1994'
+        })
+        self.assertIn('_auth_user_id', self.client.session)
+
+    def test_renders_template_when_form_is_invalid(self):
+        self.user = Account.objects.create_user(
+            email='pop@tut.by',
+            phone='+375333172375',
+            password='homm1994'
+        )
+        response = self.client.post(reverse('account:login'), {
+            'username': 'pop@tut.by',
+            'password': 'homm1995'
+        })
+        self.assertTemplateUsed(response, 'account/login.html')
+
+
+class LogoutViewTest(TestCase):
+
+    def test_redirects_on_success(self):
+        self.user = Account.objects.create_user(
+            email='pop@tut.by',
+            phone='+375333172375',
+            password='homm1994'
+        )
+        self.client.login(email=self.user.email, password='homm1994')
+        response = self.client.get(reverse('account:logout'))
+        self.assertRedirects(response, reverse('account:login'))
+
+    def test_logs_the_user_out(self):
+        self.user = Account.objects.create_user(
+            email='pop@tut.by',
+            phone='+375333172375',
+            password='homm1994'
+        )
+        self.client.login(email=self.user.email, password='homm1994')
+        response = self.client.get(reverse('account:logout'))
+        self.assertNotIn('_auth_user_id', self.client.session)
