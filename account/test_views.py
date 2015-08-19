@@ -4,60 +4,61 @@ from django.core.urlresolvers import reverse
 from .views import CreateAccountView
 from .models import Account
 
+# ===========================================
+# ================= Mixins ==================
+# ===========================================
 
-class DefaultRedirectViewTest(TestCase):
+class CreateValidUserMixin(object):
 
-    def test_redirects_anon_user(self):
-        response = self.client.get(reverse('account:default_page'))
-        self.assertRedirects(response, reverse('account:create_account'))
-
-
-    def test_redirects_authed_user(self):
+    def create_valid_user(self):
         self.user = Account.objects.create_user(
             email='pop@tut.by',
             phone='+375333172375',
             password='homm1994'
         )
+
+
+# ===========================================
+# ================== Tests ==================
+# ===========================================
+
+
+class DefaultRedirectViewTest(CreateValidUserMixin, TestCase):
+
+    def test_redirects_anon_user(self):
+        response = self.client.get(reverse('account:default_page'))
+        self.assertRedirects(response, reverse('account:create_account'))
+
+    def test_redirects_authed_user(self):
+        self.create_valid_user()
         self.client.login(email=self.user.email, password='homm1994')
         response = self.client.get(reverse('account:default_page'))
         self.assertRedirects(response, reverse('account:profile', args=(self.user.id,)))
 
 
-class ProfileViewTest(TestCase):
+class ProfileViewTest(CreateValidUserMixin, TestCase):
 
     def test_redirects_anon_user(self):
-        account = Account.objects.create_user(
-            email='pop@tut.by',
-            phone='+375333172375',
-            password='homm1994'
-        )
-        response = self.client.get(reverse('account:profile', args=(account.id,)))
+        self.create_valid_user()
+        response = self.client.get(reverse('account:profile', args=(self.user.id,)))
         self.assertRedirects(response, reverse('account:create_account'))
 
 
     def test_renders_right_template(self):
-        self.user = Account.objects.create_user(
-            email='pop@tut.by',
-            phone='+375333172375',
-            password='homm1994'
-        )
+        self.create_valid_user()
         self.client.login(email=self.user.email, password='homm1994')
         response = self.client.get(reverse('account:profile', args=(self.user.id,)))
         self.assertTemplateUsed(response, 'profile.html')
 
 
-class CreateAccountViewTest(TestCase):
+class CreateAccountViewTest(CreateValidUserMixin, TestCase):
 
     def test_renders_right_template(self):
         response = self.client.get(reverse('account:create_account'))
         self.assertTemplateUsed(response, 'account/create_account.html')
 
     def test_redirects_authed_user(self):
-        self.user = Account.objects.create_user(
-            email='pop@tut.by',
-            phone='+375333172375',
-            password='homm1994'
-        )
+        self.create_valid_user()
         self.client.login(email=self.user.email, password='homm1994')
         response = self.client.get(reverse('account:create_account'))
         self.assertRedirects(response, reverse('account:profile', args=(self.user.id,)))
@@ -92,28 +93,20 @@ class CreateAccountViewTest(TestCase):
         self.assertTemplateUsed(response, 'account/create_account.html')
 
 
-class UpdateAccountViewTest(TestCase):
+class UpdateAccountViewTest(CreateValidUserMixin, TestCase):
 
     def test_redirects_anon_user(self):
         response = self.client.get(reverse('account:update_account'))
         self.assertRedirects(response, reverse('account:create_account'))
 
     def test_renders_right_template(self):
-        self.user = Account.objects.create_user(
-            email='pop@tut.by',
-            phone='+375333172375',
-            password='homm1994'
-        )
+        self.create_valid_user()
         self.client.login(email=self.user.email, password='homm1994')
         response = self.client.get(reverse('account:update_account'))
         self.assertTemplateUsed(response, 'account/update_account.html')
 
     def test_renders_template_when_form_is_invalid(self):
-        self.user = Account.objects.create_user(
-            email='pop@tut.by',
-            phone='+375333172375',
-            password='homm1994'
-        )
+        self.create_valid_user()
         self.client.login(email=self.user.email, password='homm1994')
         response = self.client.post(reverse('account:update_account'), {
             'email': ''
@@ -121,14 +114,10 @@ class UpdateAccountViewTest(TestCase):
         self.assertTemplateUsed(response, 'account/update_account.html')
 
 
-class LoginViewTest(TestCase):
+class LoginViewTest(CreateValidUserMixin, TestCase):
 
     def test_redirects_authed_user(self):
-        self.user = Account.objects.create_user(
-            email='pop@tut.by',
-            phone='+375333172375',
-            password='homm1994'
-        )
+        self.create_valid_user()
         self.client.login(email=self.user.email, password='homm1994')
         response = self.client.get(reverse('account:login'))
         self.assertRedirects(response, reverse('account:profile', args=(self.user.id,)))
@@ -138,11 +127,7 @@ class LoginViewTest(TestCase):
         self.assertTemplateUsed(response, 'account/login.html')
 
     def test_authenticates_user_if_form_is_valid(self):
-        self.user = Account.objects.create_user(
-            email='pop@tut.by',
-            phone='+375333172375',
-            password='homm1994'
-        )
+        self.create_valid_user()
         self.client.post(reverse('account:login'), {
             'username': 'pop@tut.by',
             'password': 'homm1994'
@@ -150,11 +135,7 @@ class LoginViewTest(TestCase):
         self.assertIn('_auth_user_id', self.client.session)
 
     def test_renders_template_when_form_is_invalid(self):
-        self.user = Account.objects.create_user(
-            email='pop@tut.by',
-            phone='+375333172375',
-            password='homm1994'
-        )
+        self.create_valid_user()
         response = self.client.post(reverse('account:login'), {
             'username': 'pop@tut.by',
             'password': 'homm1995'
@@ -162,24 +143,16 @@ class LoginViewTest(TestCase):
         self.assertTemplateUsed(response, 'account/login.html')
 
 
-class LogoutViewTest(TestCase):
+class LogoutViewTest(CreateValidUserMixin, TestCase):
 
     def test_redirects_on_success(self):
-        self.user = Account.objects.create_user(
-            email='pop@tut.by',
-            phone='+375333172375',
-            password='homm1994'
-        )
+        self.create_valid_user()
         self.client.login(email=self.user.email, password='homm1994')
         response = self.client.get(reverse('account:logout'))
         self.assertRedirects(response, reverse('account:login'))
 
     def test_logs_the_user_out(self):
-        self.user = Account.objects.create_user(
-            email='pop@tut.by',
-            phone='+375333172375',
-            password='homm1994'
-        )
+        self.create_valid_user()
         self.client.login(email=self.user.email, password='homm1994')
         response = self.client.get(reverse('account:logout'))
         self.assertNotIn('_auth_user_id', self.client.session)
