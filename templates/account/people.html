@@ -5,23 +5,15 @@
                 <div class="panel-body">
                   Check out some of our member profiles..
                   <hr>
-                  {% for account in accounts %}
+                  <!-- Account component -->
                   <div class="well well-sm">
                     <div class="media">
                         <a class="thumbnail pull-left" href="#">
                             <img class="media-object" src="{{ account.photo.url }}">
                         </a>
                         <div class="media-body">
-                            <h4 class="media-heading">
-                                {% if account.first_name and account.last_name %}
-                                    {{ account.first_name }} {{ account.last_name }}
-                                {% else %}
-                                    Nonamee Noname ({{ account.email }})
-                                {% endif %}
-                            </h4>
-                            <p>
-                                {% firstof account.tagline "I'm so lazy to provide tagline..." %}
-                            </p>
+                            <h4 class="media-heading">First and last names</h4>
+                            <p>I'm so lazy to provide tagline...</p>
                             <p>
                                 <span class="label label-info">11 decisions</span>
                                 <span class="label label-success">98 followers</span>
@@ -30,10 +22,6 @@
                         </div>
                     </div>
                    </div>
-                   {% empty %}
-                   <p>
-                       No users to show
-                   </p>
-                   {% endfor %}
+                   <!-- end of Account component -->
                 </div>
 {% endblock content %}

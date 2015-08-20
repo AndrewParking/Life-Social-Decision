@@ -111,7 +111,5 @@ class LogoutView(RedirectView):
         return reverse_lazy('account:login')
 
 
-class PeopleView(RedirectAnonUserMixin, ListView):
-    model = Account
+class PeopleView(RedirectAnonUserMixin, TemplateView):
     template_name = 'account/people.html'
-    context_object_name = 'accounts'
