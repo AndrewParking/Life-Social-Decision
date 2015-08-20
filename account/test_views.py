@@ -26,7 +26,7 @@ class DefaultRedirectViewTest(CreateValidUserMixin, TestCase):
 
     def test_redirects_anon_user(self):
         response = self.client.get(reverse('account:default_page'))
-        self.assertRedirects(response, reverse('account:create_account'))
+        self.assertRedirects(response, reverse('account:login'))
 
     def test_redirects_authed_user(self):
         self.create_valid_user()
@@ -40,7 +40,7 @@ class ProfileViewTest(CreateValidUserMixin, TestCase):
     def test_redirects_anon_user(self):
         self.create_valid_user()
         response = self.client.get(reverse('account:profile', args=(self.user.id,)))
-        self.assertRedirects(response, reverse('account:create_account'))
+        self.assertRedirects(response, reverse('account:login'))
 
 
     def test_renders_right_template(self):
@@ -96,7 +96,7 @@ class UpdateAccountViewTest(CreateValidUserMixin, TestCase):
 
     def test_redirects_anon_user(self):
         response = self.client.get(reverse('account:update_account'))
-        self.assertRedirects(response, reverse('account:create_account'))
+        self.assertRedirects(response, reverse('account:login'))
 
     def test_renders_right_template(self):
         self.create_valid_user()
@@ -155,3 +155,16 @@ class LogoutViewTest(CreateValidUserMixin, TestCase):
         self.client.login(email=self.user.email, password='homm1994')
         response = self.client.get(reverse('account:logout'))
         self.assertNotIn('_auth_user_id', self.client.session)
+
+
+class PeopleViewTest(CreateValidUserMixin, TestCase):
+
+    def test_redirects_anon_user(self):
+        response = self.client.get(reverse('account:people'))
+        self.assertRedirects(response, reverse('account:login'))
+
+    def renders_right_template(self):
+        self.create_valid_user()
+        self.client.login(email=self.user.email, password='homm1994')
+        response = self.client.get(reverse('account:people'))
+        self.assertTemplateUsed(response, 'account/people.html')

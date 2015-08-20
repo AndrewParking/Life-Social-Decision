@@ -1,0 +1,35 @@
+{% extends 'base_with_profile.html' %}
+
+{% block content %}
+    <div class="panel-heading"><a href="#" class="pull-right">View all</a> <h4>Profiles</h4></div>
+                <div class="panel-body">
+                  Check out some of our member profiles..
+                  <hr>
+                  {% for account in accounts %}
+                  <div class="well well-sm">
+                    <div class="media">
+                        <a class="thumbnail pull-left" href="#">
+                            <img class="media-object" src="{{ account.photo.url }}">
+                        </a>
+                        <div class="media-body">
+                            <h4 class="media-heading">
+                                {% if account.first_name and account.last_name %}
+                                    {{ account.first_name }} {{ account.last_name }}
+                                {% else %}
+                                    Nonamee Noname ({{ account.email }})
+                                {% endif %}
+                            </h4>
+                            <p>
+                                {% firstof account.tagline "I'm so lazy to provide tagline..." %}
+                            </p>
+                            <p><span class="label label-info">11 decisions</span> <span class="label label-primary">98 followers</span></p>
+                        </div>
+                    </div>
+                   </div>
+                   {% empty %}
+                   <p>
+                       No users to show
+                   </p>
+                   {% endfor %}
+                </div>
+{% endblock content %}

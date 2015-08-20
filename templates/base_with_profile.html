@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 
 {% block page %}
-    <div class="panel col-md-3 profile">
+    <div class="panel col-md-5 profile">
         <img src="{{ user.photo.url }}">
         <div class="profile-content">
-            <h3>{{ user.first_name }} {{ user.last_name }}</h3>
+            <h4>{{ user.first_name }} {{ user.last_name }}</h4>
             <ul>
                 <li><h4>Email:</h4> {{ user.email }}</li>
                 <li><h4>Phone:</h4> {{ user.phone }}</li>
@@ -26,7 +26,7 @@
 
     <div class="col-md-1"></div>
 
-    <div class="panel col-md-8 content">
+    <div class="panel col-md-18 content">
         {% block content %}{% endblock content %}
     </div>
 {% endblock page %}

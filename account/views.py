@@ -4,7 +4,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render
 from django.forms.models import model_to_dict
 from django.core.urlresolvers import reverse_lazy
-from django.views.generic import DetailView, View
+from django.views.generic import DetailView, View, ListView
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import FormView
 from .forms import CreateAccountForm, UpdateAccountForm
@@ -21,7 +21,7 @@ class RedirectAnonUserMixin(object):
 
     def dispatch(self, *args, **kwargs):
         if not self.request.user.is_authenticated():
-            return HttpResponseRedirect(reverse_lazy('account:create_account'))
+            return HttpResponseRedirect(reverse_lazy('account:login'))
         return super(RedirectAnonUserMixin, self).dispatch(*args, **kwargs)
 
 
@@ -46,7 +46,7 @@ class DefaultRedirectView(RedirectView):
         if user.is_authenticated():
             return reverse_lazy('account:profile', args=(user.id,))
         else:
-            return reverse_lazy('account:create_account')
+            return reverse_lazy('account:login')
 
 
 class ProfileView(RedirectAnonUserMixin, DetailView):
@@ -111,3 +111,9 @@ class LogoutView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         logout(self.request)
         return reverse_lazy('account:login')
+
+
+class PeopleView(RedirectAnonUserMixin, ListView):
+    model = Account
+    template_name = 'account/people.html'
+    context_object_name = 'accounts'
