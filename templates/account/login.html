@@ -10,6 +10,7 @@
             {{ form | bootstrap }}
             <div class="form-group">
                 <button type="submit" class="btn btn-primary">Sign In</button>
+                <a href="{% url 'account:password_reset' %}" class="btn">Forgot password?</a>
             </div>
         </form>
     </div>

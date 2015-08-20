@@ -22,7 +22,6 @@ class CreateValidUserMixin(object):
 # ================== Tests ==================
 # ===========================================
 
-
 class DefaultRedirectViewTest(CreateValidUserMixin, TestCase):
 
     def test_redirects_anon_user(self):
