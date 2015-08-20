@@ -17,7 +17,7 @@
                 <ul class="col-md-12">
                 {% if user.is_authenticated %}
                     <li><a href="{% url 'account:logout' %}">Logout</a></li>
-                    <li><a href="{% url 'account:profile' user.id %}">Profile</a></li>
+                    <li><a href="{% url 'account:profile' %}">Profile</a></li>
                     <li><a href="{% url 'account:update_account' %}">Update account</a></li>
                     <li><a href="{% url 'account:people' %}">People</a></li>
                 {% else %}

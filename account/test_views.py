@@ -32,21 +32,21 @@ class DefaultRedirectViewTest(CreateValidUserMixin, TestCase):
         self.create_valid_user()
         self.client.login(email=self.user.email, password='homm1994')
         response = self.client.get(reverse('account:default_page'))
-        self.assertRedirects(response, reverse('account:profile', args=(self.user.id,)))
+        self.assertRedirects(response, reverse('account:profile'))
 
 
 class ProfileViewTest(CreateValidUserMixin, TestCase):
 
     def test_redirects_anon_user(self):
         self.create_valid_user()
-        response = self.client.get(reverse('account:profile', args=(self.user.id,)))
+        response = self.client.get(reverse('account:profile'))
         self.assertRedirects(response, reverse('account:login'))
 
 
     def test_renders_right_template(self):
         self.create_valid_user()
         self.client.login(email=self.user.email, password='homm1994')
-        response = self.client.get(reverse('account:profile', args=(self.user.id,)))
+        response = self.client.get(reverse('account:profile'))
         self.assertTemplateUsed(response, 'profile.html')
 
 
@@ -60,7 +60,7 @@ class CreateAccountViewTest(CreateValidUserMixin, TestCase):
         self.create_valid_user()
         self.client.login(email=self.user.email, password='homm1994')
         response = self.client.get(reverse('account:create_account'))
-        self.assertRedirects(response, reverse('account:profile', args=(self.user.id,)))
+        self.assertRedirects(response, reverse('account:profile'))
 
     def test_creates_user_if_form_is_valid(self):
         response = self.client.post(reverse('account:create_account'), {
@@ -119,7 +119,7 @@ class LoginViewTest(CreateValidUserMixin, TestCase):
         self.create_valid_user()
         self.client.login(email=self.user.email, password='homm1994')
         response = self.client.get(reverse('account:login'))
-        self.assertRedirects(response, reverse('account:profile', args=(self.user.id,)))
+        self.assertRedirects(response, reverse('account:profile'))
 
     def test_renders_right_template(self):
         response = self.client.get(reverse('account:login'))

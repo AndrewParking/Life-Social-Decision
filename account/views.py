@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.forms.models import model_to_dict
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic import DetailView, View, ListView
-from django.views.generic.base import RedirectView
+from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.edit import FormView
 from .forms import CreateAccountForm, UpdateAccountForm
 from .models import Account
@@ -30,7 +30,7 @@ class RedirectAuthedUserMixin(object):
     def dispatch(self, *args, **kwargs):
         user = self.request.user
         if user.is_authenticated():
-            return HttpResponseRedirect(reverse_lazy('account:profile', args=(user.id,)))
+            return HttpResponseRedirect(reverse_lazy('account:profile'))
         return super(RedirectAuthedUserMixin, self).dispatch(*args, **kwargs)
 
 
@@ -44,15 +44,13 @@ class DefaultRedirectView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         user = self.request.user
         if user.is_authenticated():
-            return reverse_lazy('account:profile', args=(user.id,))
+            return reverse_lazy('account:profile')
         else:
             return reverse_lazy('account:login')
 
 
-class ProfileView(RedirectAnonUserMixin, DetailView):
-    model = Account
+class ProfileView(RedirectAnonUserMixin, TemplateView):
     template_name = 'profile.html'
-    context_object_name = 'account'
 
 
 class CreateAccountView(RedirectAuthedUserMixin, FormView):
@@ -60,7 +58,7 @@ class CreateAccountView(RedirectAuthedUserMixin, FormView):
     template_name = 'account/create_account.html'
 
     def get_success_url(self):
-        return reverse_lazy('account:profile', args=(self.request.user.id,))
+        return reverse_lazy('account:profile')
 
     def get_form_kwargs(self):
         kwargs = super(CreateAccountView, self).get_form_kwargs()
@@ -84,7 +82,7 @@ class UpdateAccountView(RedirectAnonUserMixin, FormView):
         return kwargs
 
     def get_success_url(self):
-        return reverse_lazy('account:profile', args=(self.request.user.id,))
+        return reverse_lazy('account:profile')
 
     def form_valid(self, form):
         form.save()
@@ -96,7 +94,7 @@ class LoginView(RedirectAuthedUserMixin, FormView):
     template_name = 'account/login.html'
 
     def get_success_url(self):
-        return reverse_lazy('account:profile', args=(self.request.user.id,))
+        return reverse_lazy('account:profile')
 
     def form_valid(self, form):
         user = form.get_user()
