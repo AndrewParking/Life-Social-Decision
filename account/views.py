@@ -7,8 +7,11 @@ from django.core.urlresolvers import reverse_lazy
 from django.views.generic import DetailView, View, ListView
 from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.edit import FormView
+from rest_framework import viewsets
 from .forms import CreateAccountForm, UpdateAccountForm
 from .models import Account
+from .serializers import AccountSerializer
+from .permissions import IsAdminOrReadOnly, SafeMethodsOnly
 
 # Create your views here.
 
@@ -113,3 +116,15 @@ class LogoutView(RedirectView):
 
 class PeopleView(RedirectAnonUserMixin, TemplateView):
     template_name = 'account/people.html'
+
+
+# ===========================================
+# ================ API Views ================
+# ===========================================
+
+class AccountViewSet(viewsets.ModelViewSet):
+    serializer_class = AccountSerializer
+    permission_classes = (IsAdminOrReadOnly, SafeMethodsOnly,)
+
+    def get_queryset(self):
+        return Account.objects.exclude(pk=self.request.user.id)

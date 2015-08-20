@@ -1,6 +1,7 @@
 from django.conf.urls import url
 from django.core.urlresolvers import reverse
 from django.contrib.auth import views as auth_views
+from rest_framework.routers import DefaultRouter
 from . import views
 
 
@@ -34,3 +35,9 @@ urlpatterns = [
         'template_name': 'account/password_reset_complete.html'
     }, name='password_reset_complete'),
 ]
+
+# Additional API Routing
+
+router = DefaultRouter()
+router.register(r'accounts', views.AccountViewSet, base_name='accounts')
+urlpatterns += router.urls
