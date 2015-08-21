@@ -1,27 +1,5 @@
 {% extends 'base_with_profile.html' %}
 
 {% block content %}
-    <div class="panel-heading"><a href="#" class="pull-right">View all</a> <h4>Profiles</h4></div>
-                <div class="panel-body">
-                  Check out some of our member profiles..
-                  <hr>
-                  <!-- Account component -->
-                  <div class="well well-sm">
-                    <div class="media">
-                        <a class="thumbnail pull-left" href="#">
-                            <img class="media-object" src="{{ account.photo.url }}">
-                        </a>
-                        <div class="media-body">
-                            <h4 class="media-heading">First and last names</h4>
-                            <p>I'm so lazy to provide tagline...</p>
-                            <p>
-                                <span class="label label-info">11 decisions</span>
-                                <span class="label label-success">98 followers</span>
-                                <span class="label label-primary">63 following</span>
-                            </p>
-                        </div>
-                    </div>
-                   </div>
-                   <!-- end of Account component -->
-                </div>
+    <div id="account-container"></div>
 {% endblock content %}
