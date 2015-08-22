@@ -1,11 +1,11 @@
 var React = require('react'),
-    AccountStore = require('./AccountStore'),
-    AccountListComponent = require('./AccountListComponent');
+    FollowButtonComponent = require('./FollowButtonComponent'),
+    AccountStore = require('./AccountStore');
 
-
-AccountStore.fetchData();
+AccountStore.fetchFollowingData();
+accountId = AccountStore.getAccountId();
 
 React.render(
-    <AccountListComponent />,
-    document.getElementById('account-container')
+    <FollowButtonComponent accountId={accountId} />,
+    document.getElementById('follow-button-container')
 );

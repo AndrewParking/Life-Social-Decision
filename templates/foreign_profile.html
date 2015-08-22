@@ -1,0 +1,33 @@
+{% extends 'base_with_profile.html' %}
+
+{% block content %}
+<div>
+    <div class="panel-heading">
+        <a href="{% url 'account:people' %}" class="pull-right btn">Back</a>
+        <h4>{{ account.display_name }}</h4>
+    </div>
+    <div class="panel-body">
+        {% firstof account.tagline 'No tagline to show...' %}
+        <hr/>
+    </div>
+    <div>
+        <div class="col-md-8">
+            <img class="foreign-photo" src="{{ account.photo.url }}" />
+            <div id="follow-button-container"></div>
+        </div>
+        <div class="col-md-16">
+            <p>Email: {{ account.email }}</p>
+            <hr/>
+            <p>Phone: {{ account.phone }}</p>
+            <hr/>
+            <p>First name: {% firstof account.first_name 'Nonamee' %}</p>
+            <hr/>
+            <p>Last name: {% firstof account.last_name 'Noname' %}</p>
+            <hr/>
+        </div>
+        <div class="col-md-24">
+            <p class="about">{% firstof account.about 'Usually we display about test here...' %}</p>
+        </div>
+    </div>
+</div>
+{% endblock content %}

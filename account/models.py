@@ -97,6 +97,20 @@ class Account(AbstractBaseUser):
     def is_staff(self):
         return self.is_admin
 
+    @property
+    def short_display_name(self):
+        if self.first_name and self.last_name:
+            return '{0} {1}'.format(self.first_name, self.last_name)
+        else:
+            return 'Nonamee Noname'
+
+    @property
+    def display_name(self):
+        if self.first_name and self.last_name:
+            return '{0} {1}'.format(self.first_name, self.last_name)
+        else:
+            return 'Nonamee Noname ({0})'.format(self.email)
+
     def follow(self, account):
         self.following.add(account)
 

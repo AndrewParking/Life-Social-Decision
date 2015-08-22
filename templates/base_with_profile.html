@@ -4,7 +4,7 @@
     <div class="panel col-md-5 profile">
         <img src="{{ user.photo.url }}">
         <div class="profile-content">
-            <h4>{{ user.first_name }} {{ user.last_name }}</h4>
+            <h4>{{ user.short_display_name }}</h4>
             <ul>
                 <li><h4>Email:</h4> {{ user.email }}</li>
                 <li><h4>Phone:</h4> {{ user.phone }}</li>
@@ -20,6 +20,8 @@
             {% if user.fb_link %}
                 <li><h4>Facebook:</h4> {{ user.fb_link }}</li>
             {% endif %}
+                <li><a href="{% url 'account:followers' %}">Followers</a></li>
+                <li><a href="{% url 'account:following' %}">Following</a></li>
             </ul>
         </div>
     </div>

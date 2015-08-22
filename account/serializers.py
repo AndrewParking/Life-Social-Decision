@@ -2,6 +2,13 @@ from rest_framework import serializers
 from .models import Account
 
 
+class ShortFollowSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Account
+        fields = ('id', 'display_name')
+
+
 class FollowerSerializer(serializers.ModelSerializer):
 
     class Meta:

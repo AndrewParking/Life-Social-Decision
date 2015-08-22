@@ -12,7 +12,7 @@ from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from .forms import CreateAccountForm, UpdateAccountForm
 from .models import Account
-from .serializers import AccountSerializer
+from .serializers import AccountSerializer, ShortFollowSerializer
 from .permissions import IsAdminOrReadOnly, SafeMethodsOnly
 
 # Create your views here.
@@ -37,6 +37,19 @@ class RedirectAuthedUserMixin(object):
         if user.is_authenticated():
             return HttpResponseRedirect(reverse_lazy('account:profile'))
         return super(RedirectAuthedUserMixin, self).dispatch(*args, **kwargs)
+
+
+class AccountsListMixin(object):
+    model = Account
+    template_name = 'account/people.html'
+    context_object_name = 'accounts'
+
+    def get_context_data(self, **kwargs):
+        data = super(AccountsListMixin, self).get_context_data(**kwargs)
+        data['title'] = self.title
+        data['heading'] = self.heading
+        data['if_empty_text'] = self.if_empty_text
+        return data
 
 
 # ===========================================
@@ -116,8 +129,37 @@ class LogoutView(RedirectView):
         return reverse_lazy('account:login')
 
 
-class PeopleView(RedirectAnonUserMixin, TemplateView):
-    template_name = 'account/people.html'
+class PeopleView(RedirectAnonUserMixin, AccountsListMixin, ListView):
+    title = 'Profiles'
+    heading = 'Check out some of our member profiles..'
+    if_empty_text = 'No accounts to show :('
+
+    def get_queryset(self):
+        return Account.objects.exclude(pk=self.request.user.id).select_related()
+
+
+class ForeignProfileView(RedirectAnonUserMixin, DetailView):
+    model = Account
+    template_name = 'foreign_profile.html'
+    context_object_name = 'account'
+
+
+class FollowersListView(RedirectAnonUserMixin, AccountsListMixin, ListView):
+    title = 'Followers'
+    heading = 'This is the list of your followers'
+    if_empty_text = 'You are not followed by anybody yet :('
+
+    def get_queryset(self):
+        return self.request.user.followers.all()
+
+
+class FollowingListView(RedirectAnonUserMixin, AccountsListMixin, ListView):
+    title = 'Following'
+    heading = 'his is the list of the people whom you are following'
+    if_empty_text = 'You are not following anybody yet :('
+
+    def get_queryset(self):
+        return self.request.user.following.all()
 
 
 # ===========================================
@@ -132,15 +174,21 @@ class AccountViewSet(viewsets.ModelViewSet):
         return Account.objects.exclude(pk=self.request.user.id)
 
     @list_route(methods=['get'])
-    def followers(self, request):
-        accounts = self.request.user.followers.all()
-        serializer = self.get_serializer(accounts, many=True)
+    def first_3_following(self, request):
+        accounts = self.request.user.following.all()[:3]
+        serializer = ShortFollowSerializer(accounts, many=True)
+        return Response(serializer.data)
+
+    @list_route(methods=['get'])
+    def first_3_followers(self, request):
+        accounts = self.request.user.followers.all()[:3]
+        serializer = ShortFollowSerializer(accounts, many=True)
         return Response(serializer.data)
 
     @list_route(methods=['get'])
     def following(self, request):
         accounts = self.request.user.following.all()
-        serializer = self.get_serializer(accounts, many=True)
+        serializer = ShortFollowSerializer(accounts, many=True)
         return Response(serializer.data)
 
     @detail_route(methods=['get'])

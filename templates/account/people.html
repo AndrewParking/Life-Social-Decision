@@ -1,5 +1,37 @@
 {% extends 'base_with_profile.html' %}
 
 {% block content %}
-    <div id="account-container"></div>
+
+    <div>
+        <div class="panel-heading">
+            <h4>{{ title }}</h4>
+        </div>
+        <div class="panel-body">
+            {{ heading }}
+            <hr/>
+        </div>
+
+    {% for account in accounts %}
+        <div class="well well-sm">
+            <div class="media">
+                <a class="thumbnail pull-left" href="{% url 'account:foreign_profile' account.id %}">
+                    <img class="media-object" src="{{ account.photo.url }}" />
+                </a>
+                <div class="media-body">
+                    <h4 class="media-heading">{{ account.display_name }}</h4>
+                    <p>{% firstof account.tagline 'I\'m so lazy to provide a tagline...' %}</p>
+                    <p>
+                        <span class="label label-info">11 decisions</span>
+                        <span class="label label-success">{{ account.followers.count }} followers</span>
+                        <span class="label label-primary">{{ account.following.count }} following</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <p>{{ if_empty_text }}</p>
+    {% endfor %}
+
+    </div>
+
 {% endblock content %}

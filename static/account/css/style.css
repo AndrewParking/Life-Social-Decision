@@ -82,7 +82,7 @@ header ul li a:hover {
   font-size: 14px;
 }
 .thumbnail {
-  width: 80px;
+  width: 90px;
   margin-right: 10px;
 }
 .label {
@@ -99,6 +99,25 @@ header ul li a:hover {
   width: 100%;
   margin-bottom: 10px;
 }
-.follow {
+.follow,
+.stop-following {
   width: 100%;
+  border-radius: 2px;
+}
+.follow:focus,
+.stop-following:focus {
+  outline: none;
+}
+.follow {
+  color: #fff;
+  background: #4285f4;
+}
+.follow:focus {
+  color: #fff;
+}
+.follow:hover {
+  color: #fff;
+}
+.stop-following {
+  background: #dfdfdf;
 }
