@@ -54,6 +54,11 @@ class Account(AbstractBaseUser):
     tw_link = models.CharField(max_length=100, blank=True)
     fb_link = models.CharField(max_length=100, blank=True)
     in_link = models.CharField(max_length=100, blank=True)
+    following = models.ManyToManyField(
+        'self',
+        symmetrical=False,
+        related_name='followers',
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -93,31 +98,7 @@ class Account(AbstractBaseUser):
         return self.is_admin
 
     def follow(self, account):
-        Followship.objects.create(
-            follower=self,
-            following=account
-        )
+        self.following.add(account)
 
     def stop_following(self, account):
-        try:
-            following_case = Followship.objects.get(
-                follower=self,
-                following=account
-            )
-        except Followship.DoesNotExist:
-            return False
-        else:
-            following_case.delete()
-            return True
-
-class Followship(models.Model):
-    follower = models.ForeignKey(Account, related_name='following')
-    following = models.ForeignKey(Account, related_name='followers')
-    followship_date = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return '{0} follows {1} on {2}'.format(
-            self.follower.email,
-            self.following.email,
-            self.followship_data
-        )
+        self.following.remove(account)

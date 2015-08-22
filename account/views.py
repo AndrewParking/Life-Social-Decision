@@ -7,7 +7,9 @@ from django.core.urlresolvers import reverse_lazy
 from django.views.generic import DetailView, View, ListView
 from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.edit import FormView
-from rest_framework import viewsets
+from rest_framework import viewsets, status
+from rest_framework.decorators import detail_route, list_route
+from rest_framework.response import Response
 from .forms import CreateAccountForm, UpdateAccountForm
 from .models import Account
 from .serializers import AccountSerializer
@@ -128,3 +130,37 @@ class AccountViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Account.objects.exclude(pk=self.request.user.id)
+
+    @list_route(methods=['get'])
+    def followers(self, request):
+        accounts = self.request.user.followers.all()
+        serializer = self.get_serializer(accounts, many=True)
+        return Response(serializer.data)
+
+    @list_route(methods=['get'])
+    def following(self, request):
+        accounts = self.request.user.following.all()
+        serializer = self.get_serializer(accounts, many=True)
+        return Response(serializer.data)
+
+    @detail_route(methods=['get'])
+    def follow(self, request, pk=None):
+        try:
+            account = Account.objects.get(pk=pk)
+        except Account.DoesNotExist:
+            content = {'error': 'No such account'}
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+        else:
+            self.request.user.follow(account)
+            return Response(status=status.HTTP_201_CREATED)
+
+    @detail_route(methods=['get'])
+    def stop_following(self, request, pk=None):
+        try:
+            account = Account.objects.get(pk=pk)
+        except Account.DoesNotExist:
+            content = {'error': 'No such account'}
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+        else:
+            self.request.user.stop_following(account)
+            return Response(status=status.HTTP_204_NO_CONTENT)

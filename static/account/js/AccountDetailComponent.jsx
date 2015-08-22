@@ -3,12 +3,16 @@ var React = require('react');
 var AccountDetailComponent = React.createClass({
 
     render: function() {
-        var data = this.props.data;
+        var data = this.props.data,
+            followingClass = this.props.isFollowed ? 'unfollow' : 'follow';
+        followingClass = 'btn btn-primary ' + followingClass;
         return (
             <div>
                 <div className="col-md-8">
                     <img className="foreign-photo" src={data.photo} />
-                    <button className="btn btn-primary follow">Follow</button>
+                    <button className={followingClass} onClick={this.props.followFunc}>
+                        {this.props.isFollowed ? 'Stop following' : 'Follow'}
+                    </button>
                 </div>
                 <div className="col-md-16">
                     <p>Email: {data.email}</p>

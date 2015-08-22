@@ -2,7 +2,31 @@ from rest_framework import serializers
 from .models import Account
 
 
+class FollowerSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Account
+        fields = (
+            'email',
+            'first_name',
+            'last_name',
+        )
+
+
+class FollowingSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Account
+        fields = (
+            'email',
+            'first_name',
+            'last_name',
+        )
+
+
 class AccountSerializer(serializers.ModelSerializer):
+    followers = FollowerSerializer(many=True, read_only=True)
+    following = FollowingSerializer(many=True, read_only=True)
 
     class Meta:
         model = Account
@@ -19,4 +43,6 @@ class AccountSerializer(serializers.ModelSerializer):
             'tw_link',
             'fb_link',
             'in_link',
+            'following',
+            'followers',
         )
