@@ -6,7 +6,7 @@ class ShortFollowSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Account
-        fields = ('id', 'display_name')
+        fields = ('id', 'short_display_name', 'photo')
 
 
 class FollowerSerializer(serializers.ModelSerializer):

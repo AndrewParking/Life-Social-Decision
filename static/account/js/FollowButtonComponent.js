@@ -41,6 +41,7 @@ var FollowButtonComponent = React.createClass({displayName: "FollowButtonCompone
                 break;
             }
         }
+        console.log(isFollowed);
         return isFollowed;
     },
 

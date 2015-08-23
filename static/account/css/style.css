@@ -121,3 +121,14 @@ header ul li a:hover {
 .stop-following {
   background: #dfdfdf;
 }
+.small-fol {
+  margin-bottom: 8px;
+}
+.small-fol:hover {
+  background: #dfdfdf;
+}
+.small-fol img {
+  margin: 0;
+  width: 30px;
+  margin-right: 10px;
+}

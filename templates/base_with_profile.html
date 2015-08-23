@@ -20,8 +20,14 @@
             {% if user.fb_link %}
                 <li><h4>Facebook:</h4> {{ user.fb_link }}</li>
             {% endif %}
-                <li><a href="{% url 'account:followers' %}">Followers</a></li>
-                <li><a href="{% url 'account:following' %}">Following</a></li>
+                <li>
+                    <h4><a href="{% url 'account:followers' %}" className="fol-links">Followers</a></h4>
+                    <div id="first-followers-container"></div>
+                </li>
+                <li>
+                    <h4><a href="{% url 'account:following' %}" className="fol-links">Following</a></h4>
+                    <div id="first-following-container"></div>
+                </li>
             </ul>
         </div>
     </div>
