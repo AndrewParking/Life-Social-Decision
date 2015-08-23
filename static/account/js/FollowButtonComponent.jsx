@@ -25,23 +25,25 @@ var FollowButtonComponent = React.createClass({
     },
 
     follow: function() {
+        console.log('Now executes follow.');
         AccountActions.follow(this.props.accountId);
     },
 
     stop_following: function() {
+        console.log('Now executes stop_following.');
         AccountActions.stop_following(this.props.accountId);
     },
 
     getIsFollowed: function() {
         var isFollowed = false,
             followings = this.state.followings;
-        for (i=0, len=followings.length; i<len; i++) {
+        console.log(followings);
+        for (let i=0, len=followings.length; i<len; i++) {
             if (followings[i].id == this.props.accountId) {
                 isFollowed = true;
                 break;
             }
         }
-        console.log(isFollowed);
         return isFollowed;
     },
 

@@ -6,9 +6,9 @@ var React = require('react'),
 
 var baseUrl = AccountStore.getBaseUrl();
 
-accountId = AccountStore.getAccountId();
-AccountStore.fetchFollowersData();
-AccountStore.fetchFollowingData();
+var accountId = AccountStore.getAccountId();
+AccountStore.fetchData();
+
 
 try {
     React.render(
@@ -16,9 +16,8 @@ try {
         document.getElementById('follow-button-container')
     );
 } catch(e) {
-    console.log('no place for follow button');
+    console.log(e);
 }
-
 
 try {
     React.render(

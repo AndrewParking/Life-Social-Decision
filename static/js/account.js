@@ -1,36 +1,48 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+'use strict';
+
 var AppDispatcher = require('./AppDispatcher'),
     AccountConstants = require('./AccountConstants');
 
 var AccountActions = {
 
-    follow: function(id) {
+    follow: function follow(id) {
         AppDispatcher.dispatch({
             actionType: AccountConstants.FOLLOW,
             id: id
         });
     },
 
-    stop_following: function(id) {
+    stop_following: function stop_following(id) {
         AppDispatcher.dispatch({
             actionType: AccountConstants.STOP_FOLLOWING,
             id: id
-        })
+        });
     }
 
-}
+};
 
 module.exports = AccountActions;
-
 },{"./AccountConstants":2,"./AppDispatcher":4}],2:[function(require,module,exports){
+'use strict';
+
 var keyMirror = require('react/lib/keyMirror');
 
 module.exports = keyMirror({
     FOLLOW: null,
     STOP_FOLLOWING: null
 });
-
 },{"react/lib/keyMirror":153}],3:[function(require,module,exports){
+'use strict';
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var AppDispatcher = require('./AppDispatcher'),
     AccountConstants = require('./AccountConstants'),
     EventEmitter = require('events').EventEmitter,
@@ -49,330 +61,334 @@ function _get_base_url() {
     }
 }
 
-//Function to fetch following data from server
 function _get_following_data() {
-    var request = new XMLHttpRequest(),
-        url = _get_base_url() + '/accounts/following/';
+    return new Promise(function (resolve, reject) {
+        var request = new XMLHttpRequest(),
+            url = _get_base_url() + '/accounts/following/';
 
-    request.onreadystatechange = function() {
-        if (this.readyState == 4) {
+        request.onload = function () {
             if (this.status == 200) {
-
                 _following = JSON.parse(this.responseText);
-                AccountStore.emitChange();
+                console.log('Array got from response text ->> ', _following);
+                resolve(this.responseText);
+            } else {
+                reject(this.responseText);
+            }
+        };
 
-            } else {}
-        } else {}
-    }
-
-    request.open('GET', url, true);
-    request.send(null)
+        request.open('GET', url, true);
+        request.send(null);
+    });
 }
 
 function _get_first_3_followers() {
-    var request = new XMLHttpRequest(),
-        url = _get_base_url() + '/accounts/first_3_followers/';
+    return new Promise(function (resolve, reject) {
+        var request = new XMLHttpRequest(),
+            url = _get_base_url() + '/accounts/first_3_followers/';
 
-    request.onreadystatechange = function() {
-        if (this.readyState == 4) {
+        request.onload = function () {
             if (this.status == 200) {
-
                 _first_3_followers = JSON.parse(this.responseText);
-                AccountStore.emitChange();
+                resolve(this.responseText);
+            } else {
+                console.log(this.responseText);
+            }
+        };
 
-            } else {}
-        } else {}
-    }
-
-    request.open('GET', url, true);
-    request.send(null)
+        request.open('GET', url, true);
+        request.send(null);
+    });
 }
 
 // Function to send following request
-function _send_follow_xhr(id) {
-    var request = new XMLHttpRequest(),
-        url = window.location.toString().replace('people', 'accounts')+'follow/';
+function _send_follow_xhr() {
+    return new Promise(function (resolve, reject) {
+        var request = new XMLHttpRequest(),
+            url = window.location.toString().replace('people', 'accounts') + 'follow/';
 
-    request.onreadystatechange = function() {
-        if (this.readyState == 4) {
+        request.onload = function () {
             if (this.status == 201) {
-                /*
-                _following.push({
-                    id: id,
-                })
-                */
-                _get_following_data();
+                console.log(url);
+                resolve(this.status);
+            } else {
+                reject(this.status);
+            }
+        };
 
-            } else {}
-        } else {}
-    }
-
-    request.open('GET', url, true);
-    request.send(null);
+        request.open('GET', url, true);
+        request.send(null);
+    });
 }
 
-function _send_stop_following_xhr(id) {
-    var request = new XMLHttpRequest(),
-        url = window.location.toString().replace('people', 'accounts')+'stop_following/';
+function _send_stop_following_xhr() {
+    return new Promise(function (resolve, reject) {
+        var request = new XMLHttpRequest(),
+            url = window.location.toString().replace('people', 'accounts') + 'stop_following/';
 
-    console.log(url);
-    request.onreadystatechange = function() {
-        if (this.readyState == 4) {
+        request.onload = function () {
             if (this.status == 204) {
-                /*
-                var delIndex = 0;
+                console.log(url);
+                resolve(this.status);
+            } else {
+                reject(this.status);
+            }
+        };
 
-                for(var i=0, len=_following.length; i<len; i++) {
-                    if (_following.id == id) {
-                        delIndex = i;
-                        break;
-                    }
-                }
-                _following.splice(delIndex, 1);
-                AccountStore.emitChange();
-                */
-                _get_following_data();
-
-            } else {}
-        } else {}
-    }
-
-    request.open('GET', url, true);
-    request.send(null);
+        request.open('GET', url, true);
+        request.send(null);
+    });
 }
 
+// ========== Account Store Class definition ============
 
+var AccountStoreClass = (function (_EventEmitter) {
+    _inherits(AccountStoreClass, _EventEmitter);
 
-// ========== Account Store definition ============
+    function AccountStoreClass() {
+        _classCallCheck(this, AccountStoreClass);
 
-var AccountStore = _.extend({}, EventEmitter.prototype, {
+        _get(Object.getPrototypeOf(AccountStoreClass.prototype), 'constructor', this).apply(this, arguments);
+    }
 
-    fetchFollowingData: function() {
-        _get_following_data();
-    },
+    _createClass(AccountStoreClass, [{
+        key: 'fetchData',
+        value: function fetchData() {
+            var _this = this;
 
-    fetchFollowersData: function() {
-        _get_first_3_followers();
-    },
+            _get_following_data().then(function (result) {
+                console.log('Response ->>', result);
+                return _get_first_3_followers();
+            }, function (error) {
+                console.log('following data got with the error');
+            }).then(function (result) {
+                _this.emitChange();
+            }, function (error) {
+                console.log('followers data got with error');
+            });
+        }
+    }, {
+        key: 'getBaseUrl',
+        value: function getBaseUrl() {
+            return _get_base_url();
+        }
+    }, {
+        key: 'getAccountId',
+        value: function getAccountId() {
+            return window.location.toString().substr(-2, 1);
+        }
+    }, {
+        key: 'getFollowingData',
+        value: function getFollowingData() {
+            return _following;
+        }
+    }, {
+        key: 'getFirst3Following',
+        value: function getFirst3Following() {
+            return _following.splice(0, 3);
+        }
+    }, {
+        key: 'getFirst3Followers',
+        value: function getFirst3Followers() {
+            return _first_3_followers;
+        }
+    }, {
+        key: 'emitChange',
+        value: function emitChange() {
+            this.emit('change');
+        }
+    }, {
+        key: 'addChangeListener',
+        value: function addChangeListener(callback) {
+            this.on('change', callback);
+        }
+    }, {
+        key: 'removeChangeListener',
+        value: function removeChangeListener(callback) {
+            this.removeChangeListener('change', callback);
+        }
+    }]);
 
-    getBaseUrl: function() {
-        return _get_base_url();
-    },
+    return AccountStoreClass;
+})(EventEmitter);
 
-    getAccountId: function() {
-        return window.location.toString().substr(-2, 1);
-    },
+var AccountStore = new AccountStoreClass();
+//console.log(AccountStore);
 
-    getFollowingData: function() {
-        return _following;
-    },
-
-    getFirst3Following: function() {
-        return _following.splice(0, 3);
-    },
-
-    getFirst3Followers: function() {
-        return _first_3_followers;
-    },
-
-    emitChange: function() {
-        this.emit('change');
-    },
-
-    addChangeListener: function(callback) {
-        this.on('change', callback);
-    },
-
-    removeChangeListener: function(callback) {
-        this.removeListener('change', callback);
-    },
-
-});
-
-AppDispatcher.register(function(payload) {
-    switch(payload.actionType) {
+AppDispatcher.register(function (payload) {
+    switch (payload.actionType) {
         case AccountConstants.FOLLOW:
-            _send_follow_xhr(payload.id);
+            _send_follow_xhr().then(function (result) {
+                AccountStore.fetchData();
+            }, function (error) {
+                console.log(error);
+            });
             break;
         case AccountConstants.STOP_FOLLOWING:
-            _send_stop_following_xhr(payload.id);
+            _send_stop_following_xhr().then(function (result) {
+                AccountStore.fetchData();
+            }, function (error) {
+                console.log(error);
+            });
             break;
     }
     return true;
 });
 
 module.exports = AccountStore;
-
 },{"./AccountConstants":2,"./AppDispatcher":4,"events":9,"underscore":169}],4:[function(require,module,exports){
+'use strict';
+
 var Dispatcher = require('flux').Dispatcher,
-    AppDispatcher = new Dispatcher;
+    AppDispatcher = new Dispatcher();
 
 module.exports = AppDispatcher;
-
 },{"flux":11}],5:[function(require,module,exports){
+'use strict';
+
 var React = require('react'),
     AccountStore = require('./AccountStore'),
     AccountActions = require('./AccountActions');
 
+var First3FollowersComponent = React.createClass({ displayName: "First3FollowersComponent",
 
-var First3FollowersComponent = React.createClass({displayName: "First3FollowersComponent",
-
-    getInitialState: function() {
+    getInitialState: function getInitialState() {
         return {
             followers: AccountStore.getFirst3Followers()
         };
     },
 
-    componentDidMount: function() {
+    componentDidMount: function componentDidMount() {
         AccountStore.addChangeListener(this._onChange);
     },
 
-    componentWillUnmount: function() {
+    componentWillUnmount: function componentWillUnmount() {
         AccountStore.removeChangeListener(this._onChange);
     },
 
-    _onChange: function() {
+    _onChange: function _onChange() {
         this.setState({
             followers: AccountStore.getFirst3Followers()
         });
     },
 
-    render: function() {
-        var followers_list = this.state.followers.map(function(account) {
+    render: function render() {
+        var followers_list = this.state.followers.map(function (account) {
             var url = this.props.baseUrl + '/people/' + account.id + '/';
-            return (
-                React.createElement("div", {className: "small-fol", key: account.id}, 
-                    React.createElement("img", {src: account.photo}), 
-                    React.createElement("a", {href: url}, account.short_display_name)
-                )
-            );
+            return React.createElement("div", { className: "small-fol", key: account.id }, React.createElement("img", { src: account.photo }), React.createElement("a", { href: url }, account.short_display_name));
         }, this);
-        return (
-            React.createElement("div", null, 
-                followers_list
-            )
-        );
+        return React.createElement("div", null, followers_list);
     }
 
 });
 
 module.exports = First3FollowersComponent;
-
 },{"./AccountActions":1,"./AccountStore":3,"react":168}],6:[function(require,module,exports){
+'use strict';
+
 var React = require('react'),
     AccountStore = require('./AccountStore'),
     AccountActions = require('./AccountActions');
 
+var First3FollowingComponent = React.createClass({ displayName: "First3FollowingComponent",
 
-var First3FollowingComponent = React.createClass({displayName: "First3FollowingComponent",
-
-    getInitialState: function() {
+    getInitialState: function getInitialState() {
         return {
             following: AccountStore.getFirst3Following()
         };
     },
 
-    componentDidMount: function() {
+    componentDidMount: function componentDidMount() {
         AccountStore.addChangeListener(this._onChange);
     },
 
-    componentWillUnmount: function() {
+    componentWillUnmount: function componentWillUnmount() {
         AccountStore.removeChangeListener(this._onChange);
     },
 
-    _onChange: function() {
+    _onChange: function _onChange() {
         this.setState({
             following: AccountStore.getFirst3Following()
         });
     },
 
-    render: function() {
-        var following_list = this.state.following.map(function(account) {
+    render: function render() {
+        var following_list = this.state.following.map(function (account) {
             var url = this.props.baseUrl + '/people/' + account.id + '/';
-            return (
-                React.createElement("div", {className: "small-fol", key: account.id}, 
-                    React.createElement("img", {src: account.photo}), 
-                    React.createElement("a", {href: url}, account.short_display_name)
-                )
-            );
+            return React.createElement("div", { className: "small-fol", key: account.id }, React.createElement("img", { src: account.photo }), React.createElement("a", { href: url }, account.short_display_name));
         }, this);
-        return (
-            React.createElement("div", null, 
-                following_list
-            )
-        );
+        return React.createElement("div", null, following_list);
     }
 
 });
 
-
 module.exports = First3FollowingComponent;
-
 },{"./AccountActions":1,"./AccountStore":3,"react":168}],7:[function(require,module,exports){
+'use strict';
+
 var React = require('react'),
     AccountStore = require('./AccountStore'),
     AccountActions = require('./AccountActions');
 
-var FollowButtonComponent = React.createClass({displayName: "FollowButtonComponent",
+var FollowButtonComponent = React.createClass({ displayName: "FollowButtonComponent",
 
-    getInitialState: function() {
+    getInitialState: function getInitialState() {
         return {
             followings: AccountStore.getFollowingData()
-        }
+        };
     },
 
-    componentDidMount: function() {
+    componentDidMount: function componentDidMount() {
         AccountStore.addChangeListener(this._onChange);
     },
 
-    componentWillUnmout: function() {
+    componentWillUnmout: function componentWillUnmout() {
         AccountStore.removeChangeListener(this._onChange);
     },
 
-    _onChange: function() {
+    _onChange: function _onChange() {
         this.setState({
             followings: AccountStore.getFollowingData()
         });
     },
 
-    follow: function() {
+    follow: function follow() {
+        console.log('Now executes follow.');
         AccountActions.follow(this.props.accountId);
     },
 
-    stop_following: function() {
+    stop_following: function stop_following() {
+        console.log('Now executes stop_following.');
         AccountActions.stop_following(this.props.accountId);
     },
 
-    getIsFollowed: function() {
+    getIsFollowed: function getIsFollowed() {
         var isFollowed = false,
             followings = this.state.followings;
-        for (i=0, len=followings.length; i<len; i++) {
+        console.log(followings);
+        for (var i = 0, len = followings.length; i < len; i++) {
             if (followings[i].id == this.props.accountId) {
                 isFollowed = true;
                 break;
             }
         }
-        console.log(isFollowed);
         return isFollowed;
     },
 
-    render: function() {
+    render: function render() {
         var isFollowed = this.getIsFollowed(),
             buttonText = isFollowed ? 'Stop following' : 'Follow',
             buttonClass = isFollowed ? 'stop-following' : 'follow',
             folFunc = isFollowed ? this.stop_following : this.follow;
         buttonClass = "btn " + buttonClass;
-        return (
-            React.createElement("button", {className: buttonClass, onClick: folFunc}, buttonText)
-        );
-    },
+        return React.createElement("button", { className: buttonClass, onClick: folFunc }, buttonText);
+    }
 
 });
 
-
 module.exports = FollowButtonComponent;
-
 },{"./AccountActions":1,"./AccountStore":3,"react":168}],8:[function(require,module,exports){
+'use strict';
+
 var React = require('react'),
     FollowButtonComponent = require('./FollowButtonComponent'),
     First3FollowingComponent = require('./First3FollowingComponent'),
@@ -381,34 +397,22 @@ var React = require('react'),
 
 var baseUrl = AccountStore.getBaseUrl();
 
-accountId = AccountStore.getAccountId();
-AccountStore.fetchFollowersData();
-AccountStore.fetchFollowingData();
+var accountId = AccountStore.getAccountId();
+AccountStore.fetchData();
 
 try {
-    React.render(
-        React.createElement(FollowButtonComponent, {accountId: accountId}),
-        document.getElementById('follow-button-container')
-    );
-} catch(e) {
-    console.log('no place for follow button');
+    React.render(React.createElement(FollowButtonComponent, { accountId: accountId }), document.getElementById('follow-button-container'));
+} catch (e) {
+    console.log(e);
 }
 
-
 try {
-    React.render(
-        React.createElement(First3FollowingComponent, {baseUrl: baseUrl}),
-        document.getElementById('first-following-container')
-    );
+    React.render(React.createElement(First3FollowingComponent, { baseUrl: baseUrl }), document.getElementById('first-following-container'));
 
-    React.render(
-        React.createElement(First3FollowersComponent, {baseUrl: baseUrl}),
-        document.getElementById('first-followers-container')
-    );
-} catch(e) {
+    React.render(React.createElement(First3FollowersComponent, { baseUrl: baseUrl }), document.getElementById('first-followers-container'));
+} catch (e) {
     console.log('no place for 3-follow-components');
 }
-
 },{"./AccountStore":3,"./First3FollowersComponent":5,"./First3FollowingComponent":6,"./FollowButtonComponent":7,"react":168}],9:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //

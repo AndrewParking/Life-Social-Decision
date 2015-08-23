@@ -16,153 +16,156 @@ function _get_base_url() {
     }
 }
 
-//Function to fetch following data from server
 function _get_following_data() {
-    var request = new XMLHttpRequest(),
-        url = _get_base_url() + '/accounts/following/';
+    return new Promise(function (resolve, reject) {
+        var request = new XMLHttpRequest(),
+            url = _get_base_url() + '/accounts/following/';
 
-    request.onreadystatechange = function() {
-        if (this.readyState == 4) {
+        request.onload = function () {
             if (this.status == 200) {
-
                 _following = JSON.parse(this.responseText);
-                AccountStore.emitChange();
+                console.log('Array got from response text ->> ', _following);
+                resolve(this.responseText);
+            } else {
+                reject(this.responseText);
+            }
+        };
 
-            } else {}
-        } else {}
-    }
-
-    request.open('GET', url, true);
-    request.send(null)
+        request.open('GET', url, true);
+        request.send(null);
+    });
 }
 
 function _get_first_3_followers() {
-    var request = new XMLHttpRequest(),
-        url = _get_base_url() + '/accounts/first_3_followers/';
+    return new Promise(function (resolve, reject) {
+        var request = new XMLHttpRequest(),
+            url = _get_base_url() + '/accounts/first_3_followers/';
 
-    request.onreadystatechange = function() {
-        if (this.readyState == 4) {
+        request.onload = function () {
             if (this.status == 200) {
-
                 _first_3_followers = JSON.parse(this.responseText);
-                AccountStore.emitChange();
+                resolve(this.responseText);
+            } else {
+                console.log(this.responseText);
+            }
+        };
 
-            } else {}
-        } else {}
-    }
-
-    request.open('GET', url, true);
-    request.send(null)
+        request.open('GET', url, true);
+        request.send(null);
+    });
 }
 
 // Function to send following request
-function _send_follow_xhr(id) {
-    var request = new XMLHttpRequest(),
-        url = window.location.toString().replace('people', 'accounts')+'follow/';
+function _send_follow_xhr() {
+    return new Promise(function (resolve, reject) {
+        var request = new XMLHttpRequest(),
+            url = window.location.toString().replace('people', 'accounts') + 'follow/';
 
-    request.onreadystatechange = function() {
-        if (this.readyState == 4) {
+        request.onload = function () {
             if (this.status == 201) {
-                /*
-                _following.push({
-                    id: id,
-                })
-                */
-                _get_following_data();
+                console.log(url);
+                resolve(this.status);
+            } else {
+                reject(this.status);
+            }
+        };
 
-            } else {}
-        } else {}
-    }
-
-    request.open('GET', url, true);
-    request.send(null);
+        request.open('GET', url, true);
+        request.send(null);
+    });
 }
 
-function _send_stop_following_xhr(id) {
-    var request = new XMLHttpRequest(),
-        url = window.location.toString().replace('people', 'accounts')+'stop_following/';
 
-    console.log(url);
-    request.onreadystatechange = function() {
-        if (this.readyState == 4) {
+function _send_stop_following_xhr() {
+    return new Promise(function (resolve, reject) {
+        var request = new XMLHttpRequest(),
+            url = window.location.toString().replace('people', 'accounts') + 'stop_following/';
+
+        request.onload = function () {
             if (this.status == 204) {
-                /*
-                var delIndex = 0;
+                console.log(url);
+                resolve(this.status);
+            } else {
+                reject(this.status);
+            }
+        };
 
-                for(var i=0, len=_following.length; i<len; i++) {
-                    if (_following.id == id) {
-                        delIndex = i;
-                        break;
-                    }
-                }
-                _following.splice(delIndex, 1);
-                AccountStore.emitChange();
-                */
-                _get_following_data();
-
-            } else {}
-        } else {}
-    }
-
-    request.open('GET', url, true);
-    request.send(null);
+        request.open('GET', url, true);
+        request.send(null);
+    });
 }
 
+// ========== Account Store Class definition ============
 
+class AccountStoreClass extends EventEmitter {
 
-// ========== Account Store definition ============
+    fetchData() {
+        _get_following_data()
+            .then(result => {
+                console.log('Response ->>', result);
+                return _get_first_3_followers();
+            }, error => {
+                console.log('following data got with the error')
+            })
+            .then(result => {
+                this.emitChange();
+            }, error => {
+                console.log('followers data got with error');
+            });
+    }
 
-var AccountStore = _.extend({}, EventEmitter.prototype, {
-
-    fetchFollowingData: function() {
-        _get_following_data();
-    },
-
-    fetchFollowersData: function() {
-        _get_first_3_followers();
-    },
-
-    getBaseUrl: function() {
+    getBaseUrl() {
         return _get_base_url();
-    },
+    }
 
-    getAccountId: function() {
+    getAccountId() {
         return window.location.toString().substr(-2, 1);
-    },
+    }
 
-    getFollowingData: function() {
+    getFollowingData() {
         return _following;
-    },
+    }
 
-    getFirst3Following: function() {
+    getFirst3Following() {
         return _following.splice(0, 3);
-    },
+    }
 
-    getFirst3Followers: function() {
+    getFirst3Followers() {
         return _first_3_followers;
-    },
+    }
 
-    emitChange: function() {
+    emitChange() {
         this.emit('change');
-    },
+    }
 
-    addChangeListener: function(callback) {
+    addChangeListener(callback) {
         this.on('change', callback);
-    },
+    }
 
-    removeChangeListener: function(callback) {
-        this.removeListener('change', callback);
-    },
+    removeChangeListener(callback) {
+        this.removeChangeListener('change', callback);
+    }
 
-});
+}
+
+var AccountStore = new AccountStoreClass();
+//console.log(AccountStore);
 
 AppDispatcher.register(function(payload) {
-    switch(payload.actionType) {
+    switch (payload.actionType) {
         case AccountConstants.FOLLOW:
-            _send_follow_xhr(payload.id);
+            _send_follow_xhr().then(result => {
+                AccountStore.fetchData();
+            }, error => {
+                console.log(error);
+            });
             break;
         case AccountConstants.STOP_FOLLOWING:
-            _send_stop_following_xhr(payload.id);
+            _send_stop_following_xhr().then(result => {
+                AccountStore.fetchData();
+            }, error => {
+                console.log(error);
+            });
             break;
     }
     return true;
