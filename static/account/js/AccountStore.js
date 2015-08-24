@@ -1,11 +1,12 @@
 var AppDispatcher = require('./AppDispatcher'),
     AccountConstants = require('./AccountConstants'),
     EventEmitter = require('events').EventEmitter,
+    jQuery = require('jquery'),
     _ = require('underscore');
 
-var _following = [];
-
-var _first_3_followers = [];
+var _following = [],
+    _incoming_messages = [],
+    _outcoming_messages = [];
 
 function _get_base_url() {
     var prev = window.location.hostname;
@@ -16,6 +17,25 @@ function _get_base_url() {
     }
 }
 
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+var csrftoken = getCookie('csrftoken');
+
+
 function _get_following_data() {
     return new Promise(function (resolve, reject) {
         var request = new XMLHttpRequest(),
@@ -24,7 +44,6 @@ function _get_following_data() {
         request.onload = function () {
             if (this.status == 200) {
                 _following = JSON.parse(this.responseText);
-                console.log('Array got from response text ->> ', _following);
                 resolve(this.responseText);
             } else {
                 reject(this.responseText);
@@ -36,14 +55,14 @@ function _get_following_data() {
     });
 }
 
-function _get_first_3_followers() {
+function _get_incoming_messages() {
     return new Promise(function (resolve, reject) {
         var request = new XMLHttpRequest(),
-            url = _get_base_url() + '/accounts/first_3_followers/';
+            url = _get_base_url() + '/communication/messages/incoming/';
 
         request.onload = function () {
             if (this.status == 200) {
-                _first_3_followers = JSON.parse(this.responseText);
+                _incoming_messages = JSON.parse(this.responseText);
                 resolve(this.responseText);
             } else {
                 console.log(this.responseText);
@@ -55,6 +74,46 @@ function _get_first_3_followers() {
     });
 }
 
+function _get_outcoming_messages() {
+    return new Promise(function (resolve, reject) {
+        var request = new XMLHttpRequest(),
+            url = _get_base_url() + '/communication/messages/outcoming/';
+
+        request.onload = function () {
+            if (this.status == 200) {
+                _outcoming_messages = JSON.parse(this.responseText);
+                resolve(this.responseText);
+            } else {
+                console.log(this.responseText);
+            }
+        };
+
+        request.open('GET', url, true);
+        request.send(null);
+    });
+}
+
+
+function _send_remove_message_xhr(id) {
+    return new Promise(function (resolve, reject) {
+        var request = new XMLHttpRequest(),
+            url = _get_base_url() + `/communication/messages/${id}/remove/`;
+
+        request.onload = function () {
+            if (this.status == 200) {
+                resolve(id);
+            } else {
+                reject(this.responseText);
+            }
+        };
+
+        request.open('PATCH', url, true);
+        request.setRequestHeader("X-CSRFToken", csrftoken);
+        request.send(null);
+    });
+}
+
+
 // Function to send following request
 function _send_follow_xhr() {
     return new Promise(function (resolve, reject) {
@@ -63,8 +122,8 @@ function _send_follow_xhr() {
 
         request.onload = function () {
             if (this.status == 201) {
-                console.log(url);
-                resolve(this.status);
+                let result = JSON.parse(this.responseText);
+                resolve(result);
             } else {
                 reject(this.status);
             }
@@ -83,8 +142,7 @@ function _send_stop_following_xhr() {
 
         request.onload = function () {
             if (this.status == 204) {
-                console.log(url);
-                resolve(this.status);
+                resolve(AccountStore.AccountId);
             } else {
                 reject(this.status);
             }
@@ -95,43 +153,41 @@ function _send_stop_following_xhr() {
     });
 }
 
+
 // ========== Account Store Class definition ============
 
 class AccountStoreClass extends EventEmitter {
 
-    fetchData() {
-        _get_following_data()
-            .then(result => {
-                console.log('Response ->>', result);
-                return _get_first_3_followers();
-            }, error => {
-                console.log('following data got with the error')
-            })
-            .then(result => {
-                this.emitChange();
-            }, error => {
-                console.log('followers data got with error');
-            });
+    fetchFollowing() {
+        return _get_following_data;
     }
 
-    getBaseUrl() {
+    fetchIncomingMessages() {
+        return _get_incoming_messages;
+    }
+
+    fetchOutcomingMessages() {
+        return _get_outcoming_messages;
+    }
+
+    get BaseUrl() {
         return _get_base_url();
     }
 
-    getAccountId() {
+    get AccountId() {
         return window.location.toString().substr(-2, 1);
     }
 
-    getFollowingData() {
+    get FollowingData() {
         return _following;
     }
 
-    getFirst3Following() {
-        return _following.splice(0, 3);
+    get IncomingMessages() {
+        return _incoming_messages;
     }
 
-    getFirst3Followers() {
-        return _first_3_followers;
+    get OutcomingMessages() {
+        return _outcoming_messages;
     }
 
     emitChange() {
@@ -153,20 +209,52 @@ var AccountStore = new AccountStoreClass();
 
 AppDispatcher.register(function(payload) {
     switch (payload.actionType) {
+
         case AccountConstants.FOLLOW:
             _send_follow_xhr().then(result => {
-                AccountStore.fetchData();
+                _following.push(result);
+                console.log(_following);
+                AccountStore.emitChange();
             }, error => {
                 console.log(error);
             });
             break;
+
         case AccountConstants.STOP_FOLLOWING:
             _send_stop_following_xhr().then(result => {
-                AccountStore.fetchData();
+                for (let i=0, len=_following.length; i<len; i++) {
+                    if (_following[i].id == result) {
+                        _following.splice(i, 1);
+                    }
+                }
+                console.log(_following);
+                AccountStore.emitChange();
             }, error => {
                 console.log(error);
             });
             break;
+
+        case AccountConstants.REMOVE_MESSAGE:
+            _send_remove_message_xhr(payload.id)
+                .then(result => {
+                    if (payload.box === 'incoming') {
+                        for (let i=0, len=_incoming_messages.length; i<len; i++) {
+                            if (_incoming_messages[i].id == result) {
+                                _incoming_messages.splice(i, 1);
+                            }
+                        }
+                    } else {
+                        for (let i=0, len=_outcoming_messages.length; i<len; i++) {
+                            if (_outcoming_messages[i].id == result) {
+                                _outcoming_messages.splice(i, 1);
+                            }
+                        }
+                    }
+                    AccountStore.emitChange();
+                }, error => {
+                    console.log(error);
+                })
+                break;
     }
     return true;
 });

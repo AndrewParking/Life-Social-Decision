@@ -3,39 +3,40 @@ var React = require('react'),
     AccountActions = require('./AccountActions');
 
 
+class First3FollowersComponent extends React.Component {
 
-var First3FollowersComponent = React.createClass({
-
-    getInitialState: function() {
-        return {
-            followers: AccountStore.getFirst3Followers()
+    constructor() {
+        super();
+        this.state = {
+            followers: AccountStore.First3Followers
         };
-    },
+        this._onChange = this._onChange.bind(this);
+    }
 
-    componentDidMount: function() {
+    componentDidMount() {
         AccountStore.addChangeListener(this._onChange);
-    },
+    }
 
-    componentWillUnmount: function() {
+    componentWillUnmount() {
         AccountStore.removeChangeListener(this._onChange);
-    },
+    }
 
-    _onChange: function() {
+    _onChange() {
         this.setState({
-            followers: AccountStore.getFirst3Followers()
+            followers: AccountStore.First3Followers
         });
-    },
+    }
 
-    render: function() {
-        var followers_list = this.state.followers.map(function(account) {
-            var url = this.props.baseUrl + '/people/' + account.id + '/';
+    render() {
+        let followers_list = this.state.followers.map(account => {
+            let url = this.props.baseUrl + '/people/' + account.id + '/';
             return (
                 <div className="small-fol" key={account.id}>
                     <img src={account.photo} />
                     <a href={url}>{account.short_display_name}</a>
                 </div>
             );
-        }, this);
+        });
         return (
             <div>
                 {followers_list}
@@ -43,6 +44,7 @@ var First3FollowersComponent = React.createClass({
         );
     }
 
-});
+}
+
 
 module.exports = First3FollowersComponent;

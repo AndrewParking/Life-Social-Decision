@@ -17,6 +17,14 @@ var AccountActions = {
             actionType: AccountConstants.STOP_FOLLOWING,
             id: id
         });
+    },
+
+    removeMessage: function removeMessage(id, box) {
+        AppDispatcher.dispatch({
+            actionType: AccountConstants.REMOVE_MESSAGE,
+            box: box,
+            id: id
+        });
     }
 
 };

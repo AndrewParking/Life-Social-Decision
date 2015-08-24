@@ -132,3 +132,24 @@ header ul li a:hover {
   width: 30px;
   margin-right: 10px;
 }
+.btn:focus {
+  outline: none;
+}
+.btn-default {
+  background: #ddd;
+}
+.btn-default:focus {
+  outline: none;
+}
+.btn-success:focus {
+  outline: none;
+  background: #65b045;
+  border-color: #65b045;
+}
+.message {
+  background: #caf7fe;
+  padding: 15px;
+}
+.message p {
+  border: 0px solid #f00;
+}

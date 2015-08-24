@@ -21,12 +21,22 @@
                 <li><h4>Facebook:</h4> {{ user.fb_link }}</li>
             {% endif %}
                 <li>
-                    <h4><a href="{% url 'account:followers' %}" className="fol-links">Followers</a></h4>
-                    <div id="first-followers-container"></div>
+                    <h4><a href="{% url 'account:followers' %}" class="fol-links">Followers</a></h4>
+                    {% for account in user.followers.all|slice:":3" %}
+                        <div class="small-fol">
+                            <img src={{ account.photo.url }} />
+                            <a href={% url 'account:foreign_profile' account.id %}>{{ account.short_display_name }}</a>
+                        </div>
+                    {% endfor %}
                 </li>
                 <li>
                     <h4><a href="{% url 'account:following' %}" className="fol-links">Following</a></h4>
-                    <div id="first-following-container"></div>
+                    {% for account in user.following.all|slice:":3" %}
+                        <div class="small-fol">
+                            <img src={{ account.photo.url }} />
+                            <a href={% url 'account:foreign_profile' account.id %}>{{ account.short_display_name }}</a>
+                        </div>
+                    {% endfor %}
                 </li>
             </ul>
         </div>

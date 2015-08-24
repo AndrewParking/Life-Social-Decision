@@ -8,6 +8,9 @@ class Message(models.Model):
     to_account = models.ForeignKey(Account, related_name='messages_got')
     content = models.TextField()
     sending_date = models.DateTimeField(auto_now_add=True)
+    read = models.BooleanField(default=False)
+    removed_from = models.BooleanField(default=False)
+    removed_to = models.BooleanField(default=False)
 
     def __str__(self):
         if len(self.content) < 31:

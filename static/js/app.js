@@ -2,25 +2,37 @@
 
 var React = require('react'),
     FollowButtonComponent = require('./FollowButtonComponent'),
-    First3FollowingComponent = require('./First3FollowingComponent'),
-    First3FollowersComponent = require('./First3FollowersComponent'),
+    MessagesComponent = require('./MessagesComponent'),
     AccountStore = require('./AccountStore');
 
-var baseUrl = AccountStore.getBaseUrl();
+var follow_container = document.getElementById('follow-button-container'),
+    message_container = document.getElementById('messages-container');
 
-var accountId = AccountStore.getAccountId();
-AccountStore.fetchData();
+var accountId = AccountStore.AccountId;
 
-try {
-    React.render(React.createElement(FollowButtonComponent, { accountId: accountId }), document.getElementById('follow-button-container'));
-} catch (e) {
-    console.log(e);
+if (follow_container !== null) {
+    var fetchPromise = AccountStore.fetchFollowing();
+    fetchPromise().then(function (result) {
+        React.render(React.createElement(FollowButtonComponent, { accountId: accountId }), follow_container);
+    }, null);
+} else {
+    console.log('no place for follow button');
 }
 
-try {
-    React.render(React.createElement(First3FollowingComponent, { baseUrl: baseUrl }), document.getElementById('first-following-container'));
-
-    React.render(React.createElement(First3FollowersComponent, { baseUrl: baseUrl }), document.getElementById('first-followers-container'));
-} catch (e) {
-    console.log('no place for 3-follow-components');
+if (message_container !== null) {
+    (function () {
+        var fetchIncomingMessages = AccountStore.fetchIncomingMessages(),
+            fetchOutcomingMessages = AccountStore.fetchOutcomingMessages();
+        fetchIncomingMessages().then(function (result) {
+            return fetchOutcomingMessages();
+        }, function (error) {
+            console.log('incoming messages loading failed');
+        }).then(function (result) {
+            React.render(React.createElement(MessagesComponent, null), message_container);
+        }, function (error) {
+            console.log('outcoming messages loading failed');
+        });
+    })();
+} else {
+    console.log('no place for messages');
 }

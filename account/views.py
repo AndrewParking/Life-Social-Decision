@@ -171,18 +171,6 @@ class AccountViewSet(viewsets.ModelViewSet):
         return Account.objects.exclude(pk=self.request.user.id)
 
     @list_route(methods=['get'])
-    def first_3_following(self, request):
-        accounts = self.request.user.following.all()[:3]
-        serializer = ShortSerializer(accounts, many=True)
-        return Response(serializer.data)
-
-    @list_route(methods=['get'])
-    def first_3_followers(self, request):
-        accounts = self.request.user.followers.all()[:3]
-        serializer = ShortSerializer(accounts, many=True)
-        return Response(serializer.data)
-
-    @list_route(methods=['get'])
     def following(self, request):
         accounts = self.request.user.following.all()
         serializer = ShortSerializer(accounts, many=True)
@@ -197,7 +185,8 @@ class AccountViewSet(viewsets.ModelViewSet):
             return Response(content, status=status.HTTP_404_NOT_FOUND)
         else:
             self.request.user.follow(account)
-            return Response(status=status.HTTP_201_CREATED)
+            serializer = ShortSerializer(account)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @detail_route(methods=['get'])
     def stop_following(self, request, pk=None):

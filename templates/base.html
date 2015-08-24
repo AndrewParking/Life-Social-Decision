@@ -13,13 +13,14 @@
         <header>
             <div class="container">
                 <a href="{% url 'account:default_page' %}" class="col-md-4 logo">Life social decisions</a>
-                <div class="col-md-8"></div>
-                <ul class="col-md-12">
+                <div class="col-md-4"></div>
+                <ul class="col-md-16">
                 {% if user.is_authenticated %}
                     <li><a href="{% url 'account:logout' %}">Logout</a></li>
                     <li><a href="{% url 'account:profile' %}">Profile</a></li>
                     <li><a href="{% url 'account:update_account' %}">Update account</a></li>
                     <li><a href="{% url 'account:people' %}">People</a></li>
+                    <li><a href="{% url 'communication:messages_list' %}">Messages</a></li>
                 {% else %}
                     <li><a href="{% url 'account:login' %}">Login</a></li>
                     <li><a href="{% url 'account:create_account' %}">Create account</a></li>

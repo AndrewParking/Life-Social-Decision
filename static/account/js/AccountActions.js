@@ -5,16 +5,24 @@ var AppDispatcher = require('./AppDispatcher'),
 
 var AccountActions = {
 
-    follow: function follow(id) {
+    follow(id) {
         AppDispatcher.dispatch({
             actionType: AccountConstants.FOLLOW,
             id: id
         });
     },
 
-    stop_following: function stop_following(id) {
+    stop_following(id) {
         AppDispatcher.dispatch({
             actionType: AccountConstants.STOP_FOLLOWING,
+            id: id
+        });
+    },
+
+    removeMessage(id, box) {
+        AppDispatcher.dispatch({
+            actionType: AccountConstants.REMOVE_MESSAGE,
+            box: box,
             id: id
         });
     }

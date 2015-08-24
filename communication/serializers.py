@@ -32,5 +32,8 @@ class AjaxMessageSerializer(serializers.ModelSerializer):
             'from_account',
             'to_account',
             'content',
+            'read',
+            'removed_from',
+            'removed_to',
             'sending_date'
         )
