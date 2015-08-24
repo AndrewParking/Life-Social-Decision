@@ -12,11 +12,8 @@ from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from .forms import CreateAccountForm, UpdateAccountForm
 from .models import Account
-from .serializers import AccountSerializer, ShortFollowSerializer
+from .serializers import AccountSerializer, ShortSerializer
 from .permissions import IsAdminOrReadOnly, SafeMethodsOnly
-
-# Create your views here.
-
 
 # ===========================================
 # ================= Mixins ==================
@@ -129,6 +126,12 @@ class LogoutView(RedirectView):
         return reverse_lazy('account:login')
 
 
+class ForeignProfileView(RedirectAnonUserMixin, DetailView):
+    model = Account
+    template_name = 'foreign_profile.html'
+    context_object_name = 'account'
+
+
 class PeopleView(RedirectAnonUserMixin, AccountsListMixin, ListView):
     title = 'Profiles'
     heading = 'Check out some of our member profiles..'
@@ -136,12 +139,6 @@ class PeopleView(RedirectAnonUserMixin, AccountsListMixin, ListView):
 
     def get_queryset(self):
         return Account.objects.exclude(pk=self.request.user.id).select_related()
-
-
-class ForeignProfileView(RedirectAnonUserMixin, DetailView):
-    model = Account
-    template_name = 'foreign_profile.html'
-    context_object_name = 'account'
 
 
 class FollowersListView(RedirectAnonUserMixin, AccountsListMixin, ListView):
@@ -176,19 +173,19 @@ class AccountViewSet(viewsets.ModelViewSet):
     @list_route(methods=['get'])
     def first_3_following(self, request):
         accounts = self.request.user.following.all()[:3]
-        serializer = ShortFollowSerializer(accounts, many=True)
+        serializer = ShortSerializer(accounts, many=True)
         return Response(serializer.data)
 
     @list_route(methods=['get'])
     def first_3_followers(self, request):
         accounts = self.request.user.followers.all()[:3]
-        serializer = ShortFollowSerializer(accounts, many=True)
+        serializer = ShortSerializer(accounts, many=True)
         return Response(serializer.data)
 
     @list_route(methods=['get'])
     def following(self, request):
         accounts = self.request.user.following.all()
-        serializer = ShortFollowSerializer(accounts, many=True)
+        serializer = ShortSerializer(accounts, many=True)
         return Response(serializer.data)
 
     @detail_route(methods=['get'])

@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import Account
 
 
-class ShortFollowSerializer(serializers.ModelSerializer):
+class ShortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Account
