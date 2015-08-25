@@ -76,23 +76,23 @@ var MessagesComponent = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var messages,
+            var messages = undefined,
                 btnInClass = this.state.current === 'incoming' ? 'success' : 'default',
                 btnOutClass = this.state.current === 'outcoming' ? 'success' : 'default';
             btnInClass = 'btn btn-' + btnInClass;
             btnOutClass = 'btn btn-' + btnOutClass;
             if (this.state.current === 'incoming') {
                 messages = this.state.incoming.map(function (message) {
-                    return React.createElement(InMessageComponent, { data: message });
+                    return React.createElement(InMessageComponent, { data: message, key: message.id });
                 });
                 console.log(messages);
             } else {
                 messages = this.state.outcoming.map(function (message) {
-                    return React.createElement(OutMessageComponent, { data: message });
+                    return React.createElement(OutMessageComponent, { data: message, key: message.id });
                 });
                 console.log(messages);
             }
-            return React.createElement("div", null, React.createElement("div", null, React.createElement("button", { className: btnInClass, onClick: this.pickIncoming }, "Incoming"), React.createElement("button", { className: btnOutClass, onClick: this.pickOutcoming }, "Outcoming")), React.createElement("hr", null), React.createElement("div", null, messages));
+            return React.createElement("div", null, React.createElement("div", null, React.createElement("button", { className: btnInClass, onClick: this.pickIncoming }, "Incoming ", React.createElement("span", { className: "messages-counter" }, this.state.incoming.length)), React.createElement("button", { className: btnOutClass, onClick: this.pickOutcoming }, "Outcoming ", React.createElement("span", { className: "messages-counter" }, this.state.outcoming.length))), React.createElement("hr", null), React.createElement("div", null, messages));
         }
     }]);
 

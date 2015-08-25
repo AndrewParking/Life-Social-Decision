@@ -3,9 +3,11 @@
 var React = require('react'),
     FollowButtonComponent = require('./FollowButtonComponent'),
     MessagesComponent = require('./MessagesComponent'),
+    MessageFormComponent = require('./MessageFormComponent'),
     AccountStore = require('./AccountStore');
 
 var follow_container = document.getElementById('follow-button-container'),
+    message_sending_container = document.getElementById('message-sending-container'),
     message_container = document.getElementById('messages-container');
 
 var accountId = AccountStore.AccountId;
@@ -35,4 +37,10 @@ if (message_container !== null) {
     })();
 } else {
     console.log('no place for messages');
+}
+
+if (message_sending_container !== null) {
+    React.render(React.createElement(MessageFormComponent, null), message_sending_container);
+} else {
+    console.log('No place for message form');
 }

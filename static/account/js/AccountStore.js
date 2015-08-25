@@ -23,7 +23,6 @@ function getCookie(name) {
         var cookies = document.cookie.split(';');
         for (var i = 0; i < cookies.length; i++) {
             var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
             if (cookie.substring(0, name.length + 1) == (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 break;
@@ -62,7 +61,7 @@ function _get_incoming_messages() {
 
         request.onload = function () {
             if (this.status == 200) {
-                _incoming_messages = JSON.parse(this.responseText);
+                _incoming_messages = JSON.parse(this.responseText).reverse();
                 resolve(this.responseText);
             } else {
                 console.log(this.responseText);
@@ -81,7 +80,7 @@ function _get_outcoming_messages() {
 
         request.onload = function () {
             if (this.status == 200) {
-                _outcoming_messages = JSON.parse(this.responseText);
+                _outcoming_messages = JSON.parse(this.responseText).reverse();
                 resolve(this.responseText);
             } else {
                 console.log(this.responseText);
@@ -110,6 +109,51 @@ function _send_remove_message_xhr(id) {
         request.open('PATCH', url, true);
         request.setRequestHeader("X-CSRFToken", csrftoken);
         request.send(null);
+    });
+}
+
+
+function _send_read_message_xhr(id) {
+    return new Promise(function (resolve, reject) {
+        var request = new XMLHttpRequest(),
+            url = _get_base_url() + `/communication/messages/${id}/read/`;
+
+        request.onload = function () {
+            if (this.status == 200) {
+                resolve(id);
+            } else {
+                reject(this.responseText);
+            }
+        };
+
+        request.open('PATCH', url, true);
+        request.setRequestHeader("X-CSRFToken", csrftoken);
+        request.send(null);
+    });
+}
+
+
+function _send_message_xhr(toAccountId, content) {
+    return new Promise(function (resolve, reject) {
+        var request = new XMLHttpRequest(),
+            url = _get_base_url() + `/communication/messages/`,
+            data = {
+                to_account: toAccountId,
+                content: content
+            };
+
+        request.onload = function () {
+            if (this.status == 201) {
+                resolve(this.responseText);
+            } else {
+                reject(this.responseText);
+            }
+        };
+
+        request.open('POST', url, true);
+        request.setRequestHeader('X-CSRFToken', csrftoken);
+        request.setRequestHeader('Content-Type', 'application/json');
+        request.send(JSON.stringify(data));
     });
 }
 
@@ -253,8 +297,32 @@ AppDispatcher.register(function(payload) {
                     AccountStore.emitChange();
                 }, error => {
                     console.log(error);
-                })
-                break;
+                });
+            break;
+
+        case AccountConstants.READ_MESSAGE:
+            _send_read_message_xhr(payload.id)
+                .then(result => {
+                    for (let i=0, len=_incoming_messages.length; i<len; i++) {
+                        if (_incoming_messages[i].id == result) {
+                            _incoming_messages[i].read = true
+                        }
+                    }
+                    AccountStore.emitChange();
+                }, error => {
+                    console.log(error);
+                });
+            break;
+
+        case AccountConstants.SEND_MESSAGE:
+            _send_message_xhr(payload.toAccountId, payload.content)
+                .then(result => {
+                    console.log('message sent');
+                }, error => {
+                    console.log('error occured while message sending');
+                });
+            break;
+
     }
     return true;
 });

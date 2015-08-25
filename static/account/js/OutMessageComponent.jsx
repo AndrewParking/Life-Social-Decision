@@ -1,4 +1,5 @@
 var React = require('react'),
+    AccountStore = require('./AccountStore'),
     AccountActions = require('./AccountActions');
 
 
@@ -6,7 +7,28 @@ class OutMessageComponent extends React.Component {
 
     constructor() {
         super();
+        this.state = {
+            full: false
+        };
+        this.read = this.read.bind(this);
         this.removeMessage = this.removeMessage.bind(this);
+        this.getContent = this.getContent.bind(this);
+    }
+
+    getContent() {
+        if (!this.state.full && this.props.data.content.length > 70) {
+            return this.props.data.content.substr(0,70) + '...';
+        } else {
+            return this.props.data.content;
+        }
+    }
+
+    read() {
+        this.setState(prevState => {
+            return {
+                full: !prevState.full
+            }
+        });
     }
 
     removeMessage() {
@@ -14,15 +36,22 @@ class OutMessageComponent extends React.Component {
     }
 
     render() {
+        let messageClass =`panel panel-default ${this.props.data.read ? '' : ' unread'}`,
+            contentClass = 'message-content' + (this.state.full ? ' full' : ''),
+            personUrl = AccountStore.BaseUrl + '/people/' + this.props.data.to_account.id + '/',
+            content = this.getContent();
         return (
-            <div className="panel panel-default">
+            <div className={messageClass}>
                 <div className="panel-heading">
                     <a className="pull-right" onClick={this.removeMessage}>Remove</a>
-                    <h4>{this.props.data.to_account.short_display_name}</h4>
+                    <h4>
+                        To: <a className="message-author" href={personUrl}>{this.props.data.to_account.short_display_name}</a>
+                    </h4>
                 </div>
 				<div className="panel-body">
                     <div className="clearfix"></div>
-                    {this.props.data.content}
+                    <div className={contentClass}>{content}</div>
+                    <a className="read-link" onClick={this.read}>Show full</a>
 				</div>
 			</div>
         );

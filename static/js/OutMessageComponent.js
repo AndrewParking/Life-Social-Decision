@@ -9,6 +9,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var React = require('react'),
+    AccountStore = require('./AccountStore'),
     AccountActions = require('./AccountActions');
 
 var OutMessageComponent = (function (_React$Component) {
@@ -18,10 +19,33 @@ var OutMessageComponent = (function (_React$Component) {
         _classCallCheck(this, OutMessageComponent);
 
         _get(Object.getPrototypeOf(OutMessageComponent.prototype), 'constructor', this).call(this);
+        this.state = {
+            full: false
+        };
+        this.read = this.read.bind(this);
         this.removeMessage = this.removeMessage.bind(this);
+        this.getContent = this.getContent.bind(this);
     }
 
     _createClass(OutMessageComponent, [{
+        key: 'getContent',
+        value: function getContent() {
+            if (!this.state.full && this.props.data.content.length > 70) {
+                return this.props.data.content.substr(0, 70) + '...';
+            } else {
+                return this.props.data.content;
+            }
+        }
+    }, {
+        key: 'read',
+        value: function read() {
+            this.setState(function (prevState) {
+                return {
+                    full: !prevState.full
+                };
+            });
+        }
+    }, {
         key: 'removeMessage',
         value: function removeMessage() {
             AccountActions.removeMessage(this.props.data.id, 'outcoming');
@@ -29,7 +53,11 @@ var OutMessageComponent = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            return React.createElement("div", { className: "panel panel-default" }, React.createElement("div", { className: "panel-heading" }, React.createElement("a", { className: "pull-right", onClick: this.removeMessage }, "Remove"), React.createElement("h4", null, this.props.data.to_account.short_display_name)), React.createElement("div", { className: "panel-body" }, React.createElement("div", { className: "clearfix" }), this.props.data.content));
+            var messageClass = 'panel panel-default ' + (this.props.data.read ? '' : ' unread'),
+                contentClass = 'message-content' + (this.state.full ? ' full' : ''),
+                personUrl = AccountStore.BaseUrl + '/people/' + this.props.data.to_account.id + '/',
+                content = this.getContent();
+            return React.createElement("div", { className: messageClass }, React.createElement("div", { className: "panel-heading" }, React.createElement("a", { className: "pull-right", onClick: this.removeMessage }, "Remove"), React.createElement("h4", null, "To: ", React.createElement("a", { className: "message-author", href: personUrl }, this.props.data.to_account.short_display_name))), React.createElement("div", { className: "panel-body" }, React.createElement("div", { className: "clearfix" }), React.createElement("div", { className: contentClass }, content), React.createElement("a", { className: "read-link", onClick: this.read }, "Show full")));
         }
     }]);
 

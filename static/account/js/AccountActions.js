@@ -25,6 +25,21 @@ var AccountActions = {
             box: box,
             id: id
         });
+    },
+
+    readMessage(id) {
+        AppDispatcher.dispatch({
+            actionType: AccountConstants.READ_MESSAGE,
+            id: id
+        });
+    },
+
+    sendMessage(toAccountId, content) {
+        AppDispatcher.dispatch({
+            actionType: AccountConstants.SEND_MESSAGE,
+            toAccountId: toAccountId,
+            content: content
+        });
     }
 
 };

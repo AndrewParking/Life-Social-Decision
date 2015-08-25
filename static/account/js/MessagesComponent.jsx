@@ -57,27 +57,31 @@ class MessagesComponent extends React.Component {
     }
 
     render() {
-        var messages,
+        let messages,
             btnInClass = this.state.current === 'incoming' ? 'success' : 'default',
             btnOutClass = this.state.current === 'outcoming' ? 'success' : 'default';
         btnInClass = 'btn btn-' + btnInClass;
         btnOutClass = 'btn btn-' + btnOutClass;
         if (this.state.current === 'incoming') {
             messages = this.state.incoming.map(message => {
-                return <InMessageComponent data={message} />
+                return <InMessageComponent data={message} key={message.id} />
             });
             console.log(messages);
         } else {
             messages = this.state.outcoming.map(message => {
-                return <OutMessageComponent data={message} />
+                return <OutMessageComponent data={message} key={message.id} />
             });
             console.log(messages);
         }
         return (
             <div>
                 <div>
-                    <button className={btnInClass} onClick={this.pickIncoming}>Incoming</button>
-                    <button className={btnOutClass} onClick={this.pickOutcoming}>Outcoming</button>
+                    <button className={btnInClass} onClick={this.pickIncoming}>
+                        Incoming <span className="messages-counter">{this.state.incoming.length}</span>
+                    </button>
+                    <button className={btnOutClass} onClick={this.pickOutcoming}>
+                        Outcoming <span className="messages-counter">{this.state.outcoming.length}</span>
+                    </button>
                 </div>
                 <hr/>
                 <div>

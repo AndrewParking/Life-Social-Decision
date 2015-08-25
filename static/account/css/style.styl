@@ -125,9 +125,6 @@ header
 .small-fol
     margin-bottom 8px
 
-    &:hover
-        background #dfdfdf
-
     img
         margin: 0
         width 30px
@@ -145,6 +142,27 @@ header
     &:focus
         outline none
 
+    span
+        color #666
+
+    .messages-counter
+        display inline-block
+        width 20px
+        background #8a8a8a
+        color #ddd
+        border-radius 50%
+
+.btn-success
+    span
+        color #fff
+
+    .messages-counter
+        display inline-block
+        width 20px
+        background #fff
+        color #65b045
+        border-radius 50%
+
 .btn-success
 
     &:focus
@@ -159,3 +177,65 @@ header
 
     p
         border 0px solid red
+
+#messages-container
+
+    h4
+        margin-bottom 0
+
+#messages-container
+
+    .panel-heading
+        padding-bottom 0
+        border-bottom-width 0
+
+    .full
+        min-height 50px
+
+#messages-container .panel-default
+    background-color #edeaea
+
+#messages-container .unread
+    background-color rgba(#9ee2ff, 0.41) !important
+
+.pull-right
+    margin-left 10px
+    cursor pointer
+
+.read-link
+    display inline-block
+    margin-top 10px
+    cursor pointer
+
+.message-author
+    font-size 18px !important
+
+.message-form-container
+
+    .send-message-btn
+        display block
+        margin-top 5px
+        width 100%
+
+    .message-form
+        top 0
+        left 0
+        display none
+        position absolute
+        width 500px
+        padding 20px
+        z-index 10
+        background #fff
+        box-shadow 0 0 33px 1px #555
+        border-radius 3px
+
+    textarea
+        display block
+        width 100%
+        min-height 70px
+        margin-bottom 15px
+        padding 10px
+        color #777
+
+    .opened
+        display block
