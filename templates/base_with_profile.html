@@ -31,12 +31,14 @@
                 </li>
                 <li>
                     <h4><a href="{% url 'account:following' %}" className="fol-links">Following</a></h4>
+                    <div  id="fol-list-container">
                     {% for account in user.following.all|slice:":3" %}
                         <div class="small-fol">
                             <img src={{ account.photo.url }} />
                             <a href={% url 'account:foreign_profile' account.id %}>{{ account.short_display_name }}</a>
                         </div>
                     {% endfor %}
+                    </div>
                 </li>
             </ul>
         </div>

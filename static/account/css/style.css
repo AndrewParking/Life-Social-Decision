@@ -184,7 +184,7 @@ header ul li a:hover {
   background-color: #edeaea;
 }
 #messages-container .unread {
-  background-color: rgba(158,226,255,0.41) !important;
+  background-color: #fcff6b !important;
 }
 .pull-right {
   margin-left: 10px;
@@ -225,4 +225,14 @@ header ul li a:hover {
 }
 .message-form-container .opened {
   display: block;
+}
+.messages-count {
+  background: #4f6efb;
+  padding: 2px;
+  padding-left: 4px;
+  padding-right: 4px;
+  color: #fff;
+  border-radius: 3px;
+  font-weight: bold;
+  font-size: 12px;
 }

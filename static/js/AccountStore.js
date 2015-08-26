@@ -258,6 +258,15 @@ var AccountStoreClass = (function (_EventEmitter) {
             return _following;
         }
     }, {
+        key: 'First3Following',
+        get: function get() {
+            if (_following.length > 3) {
+                return _following.slice(-3).reverse();
+            } else {
+                return _following.reverse();
+            }
+        }
+    }, {
         key: 'IncomingMessages',
         get: function get() {
             return _incoming_messages;
@@ -266,6 +275,18 @@ var AccountStoreClass = (function (_EventEmitter) {
         key: 'OutcomingMessages',
         get: function get() {
             return _outcoming_messages;
+        }
+    }, {
+        key: 'UnreadMessagesCount',
+        get: function get() {
+            var counter = 0;
+            console.log(_incoming_messages);
+            for (var i in _incoming_messages) {
+                if (!_incoming_messages[i].read) {
+                    counter++;
+                }
+            }
+            return counter;
         }
     }]);
 
@@ -281,7 +302,6 @@ AppDispatcher.register(function (payload) {
         case AccountConstants.FOLLOW:
             _send_follow_xhr().then(function (result) {
                 _following.push(result);
-                console.log(_following);
                 AccountStore.emitChange();
             }, function (error) {
                 console.log(error);
@@ -293,6 +313,7 @@ AppDispatcher.register(function (payload) {
                 for (var i = 0, len = _following.length; i < len; i++) {
                     if (_following[i].id == result) {
                         _following.splice(i, 1);
+                        break;
                     }
                 }
                 console.log(_following);
@@ -308,12 +329,14 @@ AppDispatcher.register(function (payload) {
                     for (var i = 0, len = _incoming_messages.length; i < len; i++) {
                         if (_incoming_messages[i].id == result) {
                             _incoming_messages.splice(i, 1);
+                            break;
                         }
                     }
                 } else {
                     for (var i = 0, len = _outcoming_messages.length; i < len; i++) {
                         if (_outcoming_messages[i].id == result) {
                             _outcoming_messages.splice(i, 1);
+                            break;
                         }
                     }
                 }

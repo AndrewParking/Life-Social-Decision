@@ -226,12 +226,32 @@ class AccountStoreClass extends EventEmitter {
         return _following;
     }
 
+    get First3Following() {
+        if (_following.length > 3) {
+            return _following.slice(-3).reverse();
+        } else {
+            return _following.reverse();
+        }
+
+    }
+
     get IncomingMessages() {
         return _incoming_messages;
     }
 
     get OutcomingMessages() {
         return _outcoming_messages;
+    }
+
+    get UnreadMessagesCount() {
+        let counter = 0;
+        console.log(_incoming_messages);
+        for (let i in _incoming_messages) {
+            if (!_incoming_messages[i].read) {
+                counter++;
+            }
+        }
+        return counter;
     }
 
     emitChange() {
@@ -257,7 +277,6 @@ AppDispatcher.register(function(payload) {
         case AccountConstants.FOLLOW:
             _send_follow_xhr().then(result => {
                 _following.push(result);
-                console.log(_following);
                 AccountStore.emitChange();
             }, error => {
                 console.log(error);
@@ -269,6 +288,7 @@ AppDispatcher.register(function(payload) {
                 for (let i=0, len=_following.length; i<len; i++) {
                     if (_following[i].id == result) {
                         _following.splice(i, 1);
+                        break;
                     }
                 }
                 console.log(_following);
@@ -285,12 +305,14 @@ AppDispatcher.register(function(payload) {
                         for (let i=0, len=_incoming_messages.length; i<len; i++) {
                             if (_incoming_messages[i].id == result) {
                                 _incoming_messages.splice(i, 1);
+                                break;
                             }
                         }
                     } else {
                         for (let i=0, len=_outcoming_messages.length; i<len; i++) {
                             if (_outcoming_messages[i].id == result) {
                                 _outcoming_messages.splice(i, 1);
+                                break;
                             }
                         }
                     }
@@ -305,7 +327,7 @@ AppDispatcher.register(function(payload) {
                 .then(result => {
                     for (let i=0, len=_incoming_messages.length; i<len; i++) {
                         if (_incoming_messages[i].id == result) {
-                            _incoming_messages[i].read = true
+                            _incoming_messages[i].read = true;
                         }
                     }
                     AccountStore.emitChange();

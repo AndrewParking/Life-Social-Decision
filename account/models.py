@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
@@ -110,6 +111,11 @@ class Account(AbstractBaseUser):
             return '{0} {1}'.format(self.first_name, self.last_name)
         else:
             return 'Nonamee Noname ({0})'.format(self.email)
+
+    @property
+    def unread_messages_count(self):
+        from communication.models import Message
+        return Message.objects.filter(Q(to_account=self) & Q(read=False)).count()
 
     def follow(self, account):
         self.following.add(account)

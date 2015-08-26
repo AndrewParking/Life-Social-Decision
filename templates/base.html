@@ -20,7 +20,11 @@
                     <li><a href="{% url 'account:profile' %}">Profile</a></li>
                     <li><a href="{% url 'account:update_account' %}">Update account</a></li>
                     <li><a href="{% url 'account:people' %}">People</a></li>
-                    <li><a href="{% url 'communication:messages_list' %}">Messages</a></li>
+                    <li>
+                        <a href="{% url 'communication:messages_list' %}" id="message-counter-container">
+                            Messages <span class="messages-count">{{user.unread_messages_count}}</span>
+                        </a>
+                    </li>
                 {% else %}
                     <li><a href="{% url 'account:login' %}">Login</a></li>
                     <li><a href="{% url 'account:create_account' %}">Create account</a></li>
