@@ -36,6 +36,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'account',
     'communication',
+    'decisions',
     'bootstrapform',
     'rest_framework',
 )

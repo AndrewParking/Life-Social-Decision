@@ -114,6 +114,7 @@ class Account(AbstractBaseUser):
 
     @property
     def unread_messages_count(self):
+        # Refactor it in any other way
         from communication.models import Message
         return Message.objects.filter(Q(to_account=self) & Q(read=False)).count()
 

@@ -40,6 +40,20 @@ var AccountActions = {
             toAccountId: toAccountId,
             content: content
         });
+    },
+
+    vote: function vote(choiceId) {
+        AppDispatcher.dispatch({
+            actionType: AccountConstants.VOTE,
+            choiceId: choiceId
+        });
+    },
+
+    cancelVote: function cancelVote(decisionId) {
+        AppDispatcher.dispatch({
+            actionType: AccountConstants.CANCEL_VOTE,
+            decisionId: decisionId
+        });
     }
 
 };

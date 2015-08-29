@@ -94,6 +94,7 @@ header ul li a:hover {
   border-radius: 2px;
   background: #ebebeb;
   color: #4f4f4f;
+  margin-bottom: 30px;
 }
 .foreign-photo {
   width: 100%;
@@ -235,4 +236,25 @@ header ul li a:hover {
   border-radius: 3px;
   font-weight: bold;
   font-size: 12px;
+}
+.decision h4 {
+  padding: 20px 20px;
+  margin: 0;
+  background: #ddd;
+}
+.decision .decision-content {
+  padding: 20px 20px;
+  background: #e7e7e7;
+}
+.decision .choices-list {
+  margin-top: 25px;
+}
+.decision .choices-list .choice {
+  margin-bottom: 15px;
+}
+.decision .choices-list .indicator {
+  height: 20px;
+  width: 150px;
+  border-radius: 3px;
+  background: #269ef5;
 }

@@ -10,6 +10,8 @@ from django.views.generic.edit import FormView
 from rest_framework import viewsets, status
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
+from decisions.models import Decision
+from decisions.serializers import DecisionSerializer
 from .forms import CreateAccountForm, UpdateAccountForm
 from .models import Account
 from .serializers import AccountSerializer, ShortSerializer
@@ -198,3 +200,19 @@ class AccountViewSet(viewsets.ModelViewSet):
         else:
             self.request.user.stop_following(account)
             return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @detail_route(methods=['get'])
+    def decisions(self, request, pk=None):
+        try:
+            account = Account.objects.get(pk=pk)
+        except Account.DoesNotExist:
+            content = {'error': 'No such account'}
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+        else:
+            decisions_list = Decision.objects.filter(author=account)
+            serializer = DecisionSerializer(
+                decisions_list,
+                many=True,
+                context={'request': self.request}
+            )
+            return Response(serializer.data)

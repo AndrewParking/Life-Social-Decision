@@ -15,6 +15,7 @@ var AppDispatcher = require('./AppDispatcher'),
     _ = require('underscore');
 
 var _following = [],
+    _decisions = [],
     _incoming_messages = [],
     _outcoming_messages = [];
 
@@ -43,6 +44,71 @@ function getCookie(name) {
 }
 
 var csrftoken = getCookie('csrftoken');
+
+function _get_foreign_decisions() {
+    return new Promise(function (resolve, reject) {
+        var request = new XMLHttpRequest(),
+            url = _get_base_url() + '/accounts/' + AccountStore.AccountId + '/decisions/';
+
+        request.onload = function () {
+            if (this.status == 200) {
+                _decisions = JSON.parse(this.responseText);
+                console.log(_decisions, '<---------- what i get');
+                resolve(this.responseText);
+            } else {
+                reject(this.responseText);
+            }
+        };
+
+        request.open('GET', url, true);
+        request.send(null);
+    });
+}
+
+function _vote_xhr(choiceId) {
+    return new Promise(function (resolve, reject) {
+        var request = new XMLHttpRequest(),
+            url = _get_base_url() + '/decisions-api/votes/';
+
+        request.onload = function () {
+            if (this.status == 201) {
+                resolve(this.responseText);
+            } else {
+                reject(this.responseText);
+            }
+        };
+
+        console.log(choiceId);
+
+        request.open('POST', url, true);
+        request.setRequestHeader('Content-Type', 'application/json');
+        request.setRequestHeader("X-CSRFToken", csrftoken);
+        request.send(JSON.stringify({
+            choice: choiceId
+        }));
+    });
+}
+
+function _cancel_vote_xhr(decisionId) {
+    return new Promise(function (resolve, reject) {
+        var request = new XMLHttpRequest(),
+            url = _get_base_url() + '/decisions-api/decisions/' + decisionId + '/cancel_vote/';
+
+        request.onload = function () {
+            if (this.status == 204) {
+                resolve(this.responseText);
+            } else {
+                reject(this.responseText);
+            }
+        };
+
+        console.log(url);
+
+        request.open('DELETE', url, true);
+        request.setRequestHeader("X-CSRFToken", csrftoken);
+        request.send(null);
+    });
+}
 
 function _get_following_data() {
     return new Promise(function (resolve, reject) {
@@ -218,6 +284,11 @@ var AccountStoreClass = (function (_EventEmitter) {
             return _get_following_data;
         }
     }, {
+        key: 'fetchForeignDecisions',
+        value: function fetchForeignDecisions() {
+            return _get_foreign_decisions;
+        }
+    }, {
         key: 'fetchIncomingMessages',
         value: function fetchIncomingMessages() {
             return _get_incoming_messages;
@@ -251,6 +322,11 @@ var AccountStoreClass = (function (_EventEmitter) {
         key: 'AccountId',
         get: function get() {
             return window.location.toString().substr(-2, 1);
+        }
+    }, {
+        key: 'Decisions',
+        get: function get() {
+            return _decisions;
         }
     }, {
         key: 'FollowingData',
@@ -367,6 +443,28 @@ AppDispatcher.register(function (payload) {
             });
             break;
 
+        case AccountConstants.VOTE:
+            _vote_xhr(payload.choiceId).then(function (result) {
+                console.log('voted successfully');
+                return _get_foreign_decisions();
+            }, function (error) {
+                console.log('voting failed');
+            }).then(function (result) {
+                console.log('decisions updated');
+                AccountStore.emitChange();
+            }, null);
+            break;
+
+        case AccountConstants.CANCEL_VOTE:
+            _cancel_vote_xhr(payload.decisionId).then(function (result) {
+                console.log('vote cancelled successfully');
+                return _get_foreign_decisions();
+            }, function (error) {
+                console.log('vote cancelling failed');
+            }).then(function (result) {
+                AccountStore.emitChange();
+            }, null);
+            break;
     }
     return true;
 });

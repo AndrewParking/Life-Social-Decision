@@ -7,5 +7,7 @@ module.exports = keyMirror({
     STOP_FOLLOWING: null,
     REMOVE_MESSAGE: null,
     READ_MESSAGE: null,
-    SEND_MESSAGE: null
+    SEND_MESSAGE: null,
+    VOTE: null,
+    CANCEL_VOTE: null
 });

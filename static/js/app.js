@@ -6,21 +6,25 @@ var React = require('react'),
     MessagesComponent = require('./MessagesComponent'),
     MessageFormComponent = require('./MessageFormComponent'),
     MessageCounterComponent = require('./MessageCounterComponent'),
+    DecisionsComponent = require('./DecisionsComponent'),
     AccountStore = require('./AccountStore');
 
 var follow_container = document.getElementById('follow-button-container'),
     fol_list_container = document.getElementById('fol-list-container'),
     message_sending_container = document.getElementById('message-sending-container'),
     message_counter_container = document.getElementById('message-counter-container'),
+    decisions_container = document.getElementById('decisions-container'),
     message_container = document.getElementById('messages-container');
 
 var accountId = AccountStore.AccountId;
 
 if (follow_container !== null) {
-    var fetchPromise = AccountStore.fetchFollowing();
-    fetchPromise().then(function (result) {
+    var fetchFollowingPromise = AccountStore.fetchFollowing(),
+        fetchForeignDecisionsPromise = AccountStore.fetchForeignDecisions();
+    Promise.all([fetchFollowingPromise(), fetchForeignDecisionsPromise()]).then(function (result) {
         React.render(React.createElement(FollowButtonComponent, { accountId: accountId }), follow_container);
         React.render(React.createElement(First3Component, null), fol_list_container);
+        React.render(React.createElement(DecisionsComponent, null), decisions_container);
     }, null);
 } else {
     console.log('no place for follow button');

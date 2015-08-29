@@ -22,6 +22,7 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^', include('account.urls', namespace='account')),
     url(r'^communication/', include('communication.urls', namespace='communication')),
+    url(r'^decisions-api/', include('decisions.urls', namespace='decisions_api')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
