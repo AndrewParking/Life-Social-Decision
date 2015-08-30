@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
-from .models import Account, Followship
+from .models import Account
 
 
 class AccountModelTest(TestCase):
@@ -107,8 +107,8 @@ class AccountModelTest(TestCase):
             password='homm1994'
         )
         account.follow(other_account)
-        self.assertEqual(other_account, account.following.first().following)
-        self.assertEqual(account, other_account.followers.first().follower)
+        self.assertEqual(other_account, account.following.first())
+        self.assertEqual(account, other_account.followers.first())
 
     def test_stops_following_other_account(self):
         account = self.create_valid_account()

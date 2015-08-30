@@ -5,7 +5,9 @@ from .models import Message
 
 class MessageSerializer(serializers.ModelSerializer):
     """
-    This serializer is only used for messages creation
+    This serializer is only used for messages creation. We don't need
+    from_account field here because it is filled in preform_create method of
+    the viewset.
     """
     to_account = serializers.PrimaryKeyRelatedField(queryset=Account.objects.all())
 

@@ -43,6 +43,8 @@ class MessagesViewSet(viewsets.ModelViewSet):
     @list_route(methods=['get'])
     def incoming(self, request):
         """
+        /communication/messages/incoming/ - GET
+        ------------------------------------------------------------------------
         This url route function fetches all incoming messages for account which is
         currently logged in.
         """
@@ -53,6 +55,8 @@ class MessagesViewSet(viewsets.ModelViewSet):
     @list_route(methods=['get'])
     def outcoming(self, request):
         """
+        /communication/messages/outcoming/ - GET
+        ------------------------------------------------------------------------
         This url route function fetches all outcoming messages for account which is
         currently logged in.
         """
@@ -63,6 +67,8 @@ class MessagesViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['patch'])
     def read(self, request, pk=None):
         """
+        /communication/messages/2/read/ - PATCH
+        ------------------------------------------------------------------------
         This url route function marks the message as already read.
         """
         try:
@@ -80,6 +86,8 @@ class MessagesViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['patch'])
     def remove(self, request, pk=None):
         """
+        /communication/messages/2/remove/ - PATCH
+        ------------------------------------------------------------------------
         This function places True value to removed_... database field. It
         means that this message will never be fetched by ajax call for this
         particular account any more. We cannot just delete it because such an

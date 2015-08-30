@@ -114,3 +114,9 @@ MEDIA_URL = '/media/'
 # Auth user model
 
 AUTH_USER_MODEL = 'account.Account'
+
+# Rest framework settings
+
+REST_FRAMEWORK = {
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+}
