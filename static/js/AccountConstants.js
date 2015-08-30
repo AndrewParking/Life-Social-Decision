@@ -9,5 +9,6 @@ module.exports = keyMirror({
     READ_MESSAGE: null,
     SEND_MESSAGE: null,
     VOTE: null,
-    CANCEL_VOTE: null
+    CANCEL_VOTE: null,
+    CREATE_DECISION: null
 });

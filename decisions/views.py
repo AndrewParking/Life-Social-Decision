@@ -1,9 +1,14 @@
 from django.shortcuts import render
 from rest_framework import viewsets, status
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from .models import Decision, Vote, Choice
-from .serializers import DecisionSerializer, VoteSerializer, SeparateChoiceSerializer
+from .serializers import (
+    DecisionSerializer,
+    OwnDecisionSerializer,
+    VoteSerializer,
+    SeparateChoiceSerializer,
+)
 from .permissions import IsOwnerOrReadOnly, IsOwnerOrNotAllowed
 
 # Create your views here.
@@ -14,6 +19,13 @@ class DecisionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Decision.objects.all()
+
+    @list_route(methods=['get'])
+    def own_decisions(self, request):
+        decisions = Decision.objects.filter(author=request.user)
+        serializer = OwnDecisionSerializer(decisions, many=True)
+        return Response(serializer.data)
+
 
     @detail_route(methods=['delete'])
     def cancel_vote(self, request, pk=None):

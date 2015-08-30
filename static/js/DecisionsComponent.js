@@ -22,7 +22,6 @@ var DecisionsComponent = (function (_React$Component) {
         this.state = {
             decisions: AccountStore.Decisions
         };
-        console.log('decisions ==> ', this.state.decisions);
         this._onChange = this._onChange.bind(this);
     }
 

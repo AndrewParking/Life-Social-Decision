@@ -219,15 +219,16 @@ header
         width 100%
 
     .message-form
-        top 0
-        left 0
+        left 50%-250px
+        top 150px
         display none
         position absolute
+        position fixed
         width 500px
         padding 20px
         z-index 10
-        background #fff
-        box-shadow 0 0 33px 1px #555
+        background #e4e4e4
+        box-shadow 0 0 0 1000px rgba(0, 0, 0, 0.57)
         border-radius 3px
 
     textarea
@@ -268,8 +269,57 @@ header
         .choice
             margin-bottom 15px
 
+            .vote-link
+
+                a
+                    margin-right 5px
+                    cursor pointer
+
+                .not-active
+                    color #717171
+                    cursor default
+
+                span
+                    color #878585
+                    font-weight bold
+                    border-radius 4px
+
         .indicator
             height 20px
             width 150px
             border-radius 3px
             background #269ef5
+
+.decision
+    position relative
+
+    .cancel-vote
+        position absolute
+        top 28px
+        right 30px
+
+.decision-creation-form
+
+    padding-left 15px
+    margin-bottom 40px
+
+    input,
+    textarea
+        display block
+        width 400px
+        margin-bottom 15px
+        padding 10px
+        border-radius 2px
+        border 1px solid #c3c3c3
+        background #f2eded
+
+        &:focus
+            outline none
+            border 1px solid #4285f4
+            border-bottom 4px solid #4285f4
+
+.add-more-btn
+    margin-right 10px
+
+.decisions-heading
+    padding-left 15px

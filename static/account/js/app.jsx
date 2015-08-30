@@ -5,6 +5,7 @@ var React = require('react'),
     MessageFormComponent = require('./MessageFormComponent'),
     MessageCounterComponent = require('./MessageCounterComponent'),
     DecisionsComponent = require('./DecisionsComponent'),
+    OwnDecisionsComponent = require('./OwnDecisionsComponent'),
     AccountStore = require('./AccountStore');
 
 
@@ -13,9 +14,24 @@ var follow_container = document.getElementById('follow-button-container'),
     message_sending_container = document.getElementById('message-sending-container'),
     message_counter_container = document.getElementById('message-counter-container'),
     decisions_container = document.getElementById('decisions-container'),
+    own_decisions_container = document.getElementById('own-decisions-container'),
     message_container = document.getElementById('messages-container');
 
 var accountId = AccountStore.AccountId;
+
+
+if (own_decisions_container !== null) {
+    let fetchOwnDecisions = AccountStore.fetchOwnDecisions();
+    fetchOwnDecisions()
+        .then(result => {
+            React.render(
+                <OwnDecisionsComponent />,
+                own_decisions_container
+            );
+        }, null);
+} else {
+    console.log('No place for own decisions');
+}
 
 
 if (follow_container !== null) {

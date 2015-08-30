@@ -12,30 +12,17 @@ var React = require('react'),
     AccountActions = require('./AccountActions'),
     AccountStore = require('./AccountStore');
 
-var DecisionItemComponent = (function (_React$Component) {
-    _inherits(DecisionItemComponent, _React$Component);
+var OwnDecisionItemComponent = (function (_React$Component) {
+    _inherits(OwnDecisionItemComponent, _React$Component);
 
-    function DecisionItemComponent() {
-        _classCallCheck(this, DecisionItemComponent);
+    function OwnDecisionItemComponent() {
+        _classCallCheck(this, OwnDecisionItemComponent);
 
-        _get(Object.getPrototypeOf(DecisionItemComponent.prototype), 'constructor', this).call(this);
+        _get(Object.getPrototypeOf(OwnDecisionItemComponent.prototype), 'constructor', this).call(this);
         this.getMaxVotes = this.getMaxVotes.bind(this);
-        this.vote = this.vote.bind(this);
-        this.cancelVote = this.cancelVote.bind(this);
-        this.getCancelVoteButton = this.getCancelVoteButton.bind(this);
     }
 
-    _createClass(DecisionItemComponent, [{
-        key: 'vote',
-        value: function vote(choiceId) {
-            AccountActions.vote(choiceId);
-        }
-    }, {
-        key: 'cancelVote',
-        value: function cancelVote() {
-            AccountActions.cancelVote(this.props.data.id);
-        }
-    }, {
+    _createClass(OwnDecisionItemComponent, [{
         key: 'getMaxVotes',
         value: function getMaxVotes() {
             var choices = this.props.data.choices,
@@ -70,44 +57,23 @@ var DecisionItemComponent = (function (_React$Component) {
             return maxVotes;
         }
     }, {
-        key: 'getCancelVoteButton',
-        value: function getCancelVoteButton() {
-            if (this.props.data.already_voted) {
-                return React.createElement("button", { className: "btn btn-success cancel-vote", onClick: this.cancelVote }, "Cancel vote");
-            } else {
-                return "";
-            }
-        }
-    }, {
         key: 'render',
         value: function render() {
-            var _this = this;
-
             var maxVotes = this.getMaxVotes(),
-                cancelVoteButton = this.getCancelVoteButton(),
 
             // getting choice list
             choices_list = this.props.data.choices.map(function (choice) {
                 var widthStyle = {
                     width: maxVotes !== 0 ? Math.floor(choice.votes / maxVotes) * 450 + 20 : 20
-                },
-                    voteLink = undefined;
-
-                // deciding whether the vote links should be active or not
-                if (_this.props.data.already_voted) {
-                    voteLink = React.createElement("p", { className: "vote-link" }, React.createElement("a", { className: "not-active" }, choice.content), React.createElement("span", null, choice.votes));
-                } else {
-                    voteLink = React.createElement("p", { className: "vote-link" }, React.createElement("a", { onClick: _this.vote.bind(_this, choice.id) }, choice.content), React.createElement("span", null, choice.votes));
-                }
-
-                return React.createElement("div", { className: "choice", key: choice.id }, voteLink, React.createElement("div", { className: "indicator", style: widthStyle }));
+                };
+                return React.createElement("div", { className: "choice", key: choice.id }, React.createElement("p", { className: "vote-link" }, React.createElement("a", { className: "not-active" }, choice.content), React.createElement("span", null, choice.votes)), React.createElement("div", { className: "indicator", style: widthStyle }));
             });
 
-            return React.createElement("div", { className: "decision" }, React.createElement("div", { className: "panel-body" }, React.createElement("h4", null, this.props.data.heading), React.createElement("div", { className: "decision-content" }, cancelVoteButton, React.createElement("p", null, this.props.data.content), React.createElement("div", { className: "choices-list" }, choices_list))));
+            return React.createElement("div", { className: "decision" }, React.createElement("div", { className: "panel-body" }, React.createElement("h4", null, this.props.data.heading), React.createElement("div", { className: "decision-content" }, React.createElement("p", null, this.props.data.content), React.createElement("div", { className: "choices-list" }, choices_list))));
         }
     }]);
 
-    return DecisionItemComponent;
+    return OwnDecisionItemComponent;
 })(React.Component);
 
-module.exports = DecisionItemComponent;
+module.exports = OwnDecisionItemComponent;

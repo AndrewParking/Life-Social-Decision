@@ -54,7 +54,14 @@ var AccountActions = {
             actionType: AccountConstants.CANCEL_VOTE,
             decisionId: decisionId
         });
-    }
+    },
+
+    createDecision(data) {
+        AppDispatcher.dispatch({
+            actionType: AccountConstants.CREATE_DECISION,
+            data: data
+        });
+    },
 
 };
 

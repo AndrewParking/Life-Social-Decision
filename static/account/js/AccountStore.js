@@ -6,6 +6,7 @@ var AppDispatcher = require('./AppDispatcher'),
 
 var _following = [],
     _decisions = [],
+    _own_decisions = [],
     _incoming_messages = [],
     _outcoming_messages = [];
 
@@ -44,7 +45,6 @@ function _get_foreign_decisions() {
         request.onload = function () {
             if (this.status == 200) {
                 _decisions = JSON.parse(this.responseText);
-                console.log(_decisions, '<---------- what i get');
                 resolve(this.responseText);
             } else {
                 reject(this.responseText);
@@ -53,6 +53,48 @@ function _get_foreign_decisions() {
 
         request.open('GET', url, true);
         request.send(null);
+    });
+}
+
+
+function _get_own_decisions() {
+    return new Promise(function (resolve, reject) {
+        var request = new XMLHttpRequest(),
+            url = _get_base_url() + '/decisions-api/decisions/own_decisions/';
+
+        request.onload = function () {
+            if (this.status == 200) {
+                _own_decisions = JSON.parse(this.responseText);
+                resolve(this.responseText);
+            } else {
+                reject(this.responseText);
+            }
+        };
+
+        request.open('GET', url, true);
+        request.send(null);
+    });
+}
+
+
+function _create_decision_xhr(data) {
+    return new Promise(function (resolve, reject) {
+        var request = new XMLHttpRequest(),
+            url = _get_base_url() + '/decisions-api/decisions/';
+
+        request.onload = function () {
+            if (this.status == 201) {
+                resolve(this.responseText);
+            } else {
+                reject(this.responseText);
+            }
+        };
+
+        request.open('POST', url, true);
+        request.setRequestHeader('Content-Type', 'application/json');
+        request.setRequestHeader("X-CSRFToken", csrftoken);
+        request.send(JSON.stringify(data));
+
     });
 }
 
@@ -75,9 +117,7 @@ function _vote_xhr(choiceId) {
         request.open('POST', url, true);
         request.setRequestHeader('Content-Type', 'application/json');
         request.setRequestHeader("X-CSRFToken", csrftoken);
-        request.send(JSON.stringify({
-            choice: choiceId
-        }));
+        request.send(JSON.stringify({choice: choiceId}));
 
     });
 }
@@ -281,6 +321,10 @@ class AccountStoreClass extends EventEmitter {
         return _get_foreign_decisions;
     }
 
+    fetchOwnDecisions() {
+        return _get_own_decisions;
+    }
+
     fetchIncomingMessages() {
         return _get_incoming_messages;
     }
@@ -299,6 +343,10 @@ class AccountStoreClass extends EventEmitter {
 
     get Decisions() {
         return _decisions;
+    }
+
+    get OwnDecisions() {
+        return _own_decisions;
     }
 
     get FollowingData() {
@@ -445,6 +493,19 @@ AppDispatcher.register(function(payload) {
                     return _get_foreign_decisions();
                 }, error => {
                     console.log('vote cancelling failed');
+                })
+                .then(result => {
+                    AccountStore.emitChange();
+                }, null);
+            break;
+
+        case AccountConstants.CREATE_DECISION:
+            _create_decision_xhr(payload.data)
+                .then(result => {
+                    console.log('decision created');
+                    return _get_own_decisions();
+                }, error => {
+                    console.log('decision creation failed');
                 })
                 .then(result => {
                     AccountStore.emitChange();
