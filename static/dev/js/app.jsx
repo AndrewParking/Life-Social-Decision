@@ -19,7 +19,10 @@ var follow_container = document.getElementById('follow-button-container'),
 
 var accountId = AccountStore.AccountId;
 
+// if own certain dom element exists, we can assume we are at certain page.
+// that's why we fetch in promise required data and then render components.
 
+// PROFILE PAGE
 if (own_decisions_container !== null) {
     let fetchOwnDecisions = AccountStore.fetchOwnDecisions();
     fetchOwnDecisions()
@@ -34,6 +37,7 @@ if (own_decisions_container !== null) {
 }
 
 
+// FOREIGN PROFILE PAGE
 if (follow_container !== null) {
     let fetchFollowingPromise = AccountStore.fetchFollowing(),
         fetchForeignDecisionsPromise = AccountStore.fetchForeignDecisions();
@@ -59,6 +63,7 @@ if (follow_container !== null) {
 }
 
 
+// MESSAGES PAGE
 if (message_container !== null) {
     let fetchIncomingMessages = AccountStore.fetchIncomingMessages(),
         fetchOutcomingMessages = AccountStore.fetchOutcomingMessages();

@@ -20,6 +20,7 @@ var _following = [],
     _incoming_messages = [],
     _outcoming_messages = [];
 
+// utils.js
 function _get_base_url() {
     var prev = window.location.hostname;
     if (prev == '127.0.0.1') {
@@ -29,6 +30,7 @@ function _get_base_url() {
     }
 }
 
+// utils.js
 function getCookie(name) {
     var cookieValue = null;
     if (document.cookie && document.cookie != '') {
@@ -363,7 +365,10 @@ var AccountStoreClass = (function (_EventEmitter) {
     }, {
         key: 'AccountId',
         get: function get() {
-            return window.location.toString().substr(-2, 1);
+            var startIndex = _get_base_url().length + '/people/'.length,
+                charsCount = window.location.toString().length - startIndex - 1;
+            console.log(charsCount);
+            return window.location.toString().substr(startIndex, charsCount);
         }
     }, {
         key: 'Decisions',
