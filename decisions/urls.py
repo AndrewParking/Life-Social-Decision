@@ -8,7 +8,6 @@ urlpatterns = []
 
 router = DefaultRouter()
 router.register(r'decisions', views.DecisionViewSet, base_name='decisions')
-router.register(r'choices', views.ChoiceViewSet, base_name='choices')
 router.register(r'votes', views.VoteViewSet, base_name='votes')
 
 urlpatterns += router.urls

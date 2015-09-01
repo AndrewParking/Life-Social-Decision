@@ -2,7 +2,20 @@ from rest_framework import serializers
 from .models import Decision, Choice, Vote
 
 
+class DeleteChoiceSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+
+
+class UpdateChoiceSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    content = serializers.CharField()
+
+
 class ChoiceSerializer(serializers.ModelSerializer):
+    """
+    This serializer is used to fetch and create choice instances in nested
+    decision serializer.
+    """
     votes = serializers.ReadOnlyField(source='votes_count')
 
     class Meta:
@@ -11,16 +24,6 @@ class ChoiceSerializer(serializers.ModelSerializer):
             'id',
             'content',
             'votes'
-        )
-
-class SeparateChoiceSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Choice
-        fields = (
-            'id',
-            'content',
-            'decision'
         )
 
 
