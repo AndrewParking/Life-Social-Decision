@@ -1,4 +1,5 @@
 var React = require('react'),
+    baseUrl = require('./utils').baseUrl,
     AccountStore = require('./AccountStore');
 
 
@@ -29,7 +30,7 @@ class First3Component extends React.Component {
     }
 
     render() {
-        let accountUrl = AccountStore.BaseUrl + '/people/',
+        let accountUrl = baseUrl + '/people/',
             listToRender = this.state.following.map(account => {
             return (
                 <div className="small-fol" key={account.id}>

@@ -31272,297 +31272,25 @@ var AppDispatcher = require('./AppDispatcher'),
     jQuery = require('jquery'),
     _ = require('underscore');
 
+var _get_foreign_decisions = require('./XHRequest')._get_foreign_decisions,
+    _get_own_decisions = require('./XHRequest')._get_own_decisions,
+    _create_decision_xhr = require('./XHRequest')._create_decision_xhr,
+    _vote_xhr = require('./XHRequest')._vote_xhr,
+    _cancel_vote_xhr = require('./XHRequest')._cancel_vote_xhr,
+    _get_following_data = require('./XHRequest')._get_following_data,
+    _send_remove_message_xhr = require('./XHRequest')._send_remove_message_xhr,
+    _send_read_message_xhr = require('./XHRequest')._send_read_message_xhr,
+    _send_message_xhr = require('./XHRequest')._send_message_xhr,
+    _send_follow_xhr = require('./XHRequest')._send_follow_xhr,
+    _send_stop_following_xhr = require('./XHRequest')._send_stop_following_xhr;
+
+var csrftoken = require('./utils').csrftoken;
+
 var _following = [],
     _decisions = [],
     _own_decisions = [],
     _incoming_messages = [],
     _outcoming_messages = [];
-
-// utils.js
-function _get_base_url() {
-    var prev = window.location.hostname;
-    if (prev == '127.0.0.1') {
-        return 'http://' + prev + ':8000';
-    } else {
-        return prev;
-    }
-}
-
-// utils.js
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            if (cookie.substring(0, name.length + 1) == name + '=') {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-var csrftoken = getCookie('csrftoken');
-
-function _get_foreign_decisions() {
-    return new Promise(function (resolve, reject) {
-        var request = new XMLHttpRequest(),
-            url = _get_base_url() + '/accounts/' + AccountStore.AccountId + '/decisions/';
-
-        request.onload = function () {
-            if (this.status == 200) {
-                _decisions = JSON.parse(this.responseText);
-                resolve(this.responseText);
-            } else {
-                reject(this.responseText);
-            }
-        };
-
-        request.open('GET', url, true);
-        request.send(null);
-    });
-}
-
-function _get_own_decisions() {
-    return new Promise(function (resolve, reject) {
-        var request = new XMLHttpRequest(),
-            url = _get_base_url() + '/decisions-api/decisions/own_decisions/';
-
-        request.onload = function () {
-            if (this.status == 200) {
-                _own_decisions = JSON.parse(this.responseText);
-                resolve(this.responseText);
-            } else {
-                reject(this.responseText);
-            }
-        };
-
-        request.open('GET', url, true);
-        request.send(null);
-    });
-}
-
-function _create_decision_xhr(data) {
-    return new Promise(function (resolve, reject) {
-        var request = new XMLHttpRequest(),
-            url = _get_base_url() + '/decisions-api/decisions/';
-
-        request.onload = function () {
-            if (this.status == 201) {
-                resolve(this.responseText);
-            } else {
-                reject(this.responseText);
-            }
-        };
-
-        request.open('POST', url, true);
-        request.setRequestHeader('Content-Type', 'application/json');
-        request.setRequestHeader("X-CSRFToken", csrftoken);
-        request.send(JSON.stringify(data));
-    });
-}
-
-function _vote_xhr(choiceId) {
-    return new Promise(function (resolve, reject) {
-        var request = new XMLHttpRequest(),
-            url = _get_base_url() + '/decisions-api/votes/';
-
-        request.onload = function () {
-            if (this.status == 201) {
-                resolve(this.responseText);
-            } else {
-                reject(this.responseText);
-            }
-        };
-
-        console.log(choiceId);
-
-        request.open('POST', url, true);
-        request.setRequestHeader('Content-Type', 'application/json');
-        request.setRequestHeader("X-CSRFToken", csrftoken);
-        request.send(JSON.stringify({ choice: choiceId }));
-    });
-}
-
-function _cancel_vote_xhr(decisionId) {
-    return new Promise(function (resolve, reject) {
-        var request = new XMLHttpRequest(),
-            url = _get_base_url() + '/decisions-api/decisions/' + decisionId + '/cancel_vote/';
-
-        request.onload = function () {
-            if (this.status == 204) {
-                resolve(this.responseText);
-            } else {
-                reject(this.responseText);
-            }
-        };
-
-        console.log(url);
-
-        request.open('DELETE', url, true);
-        request.setRequestHeader("X-CSRFToken", csrftoken);
-        request.send(null);
-    });
-}
-
-function _get_following_data() {
-    return new Promise(function (resolve, reject) {
-        var request = new XMLHttpRequest(),
-            url = _get_base_url() + '/accounts/following/';
-
-        request.onload = function () {
-            if (this.status == 200) {
-                _following = JSON.parse(this.responseText);
-                resolve(this.responseText);
-            } else {
-                reject(this.responseText);
-            }
-        };
-
-        request.open('GET', url, true);
-        request.send(null);
-    });
-}
-
-function _get_incoming_messages() {
-    return new Promise(function (resolve, reject) {
-        var request = new XMLHttpRequest(),
-            url = _get_base_url() + '/communication/messages/incoming/';
-
-        request.onload = function () {
-            if (this.status == 200) {
-                _incoming_messages = JSON.parse(this.responseText).reverse();
-                resolve(this.responseText);
-            } else {
-                console.log(this.responseText);
-            }
-        };
-
-        request.open('GET', url, true);
-        request.send(null);
-    });
-}
-
-function _get_outcoming_messages() {
-    return new Promise(function (resolve, reject) {
-        var request = new XMLHttpRequest(),
-            url = _get_base_url() + '/communication/messages/outcoming/';
-
-        request.onload = function () {
-            if (this.status == 200) {
-                _outcoming_messages = JSON.parse(this.responseText).reverse();
-                resolve(this.responseText);
-            } else {
-                console.log(this.responseText);
-            }
-        };
-
-        request.open('GET', url, true);
-        request.send(null);
-    });
-}
-
-function _send_remove_message_xhr(id) {
-    return new Promise(function (resolve, reject) {
-        var request = new XMLHttpRequest(),
-            url = _get_base_url() + ('/communication/messages/' + id + '/remove/');
-
-        request.onload = function () {
-            if (this.status == 200) {
-                resolve(id);
-            } else {
-                reject(this.responseText);
-            }
-        };
-
-        request.open('PATCH', url, true);
-        request.setRequestHeader("X-CSRFToken", csrftoken);
-        request.send(null);
-    });
-}
-
-function _send_read_message_xhr(id) {
-    return new Promise(function (resolve, reject) {
-        var request = new XMLHttpRequest(),
-            url = _get_base_url() + ('/communication/messages/' + id + '/read/');
-
-        request.onload = function () {
-            if (this.status == 200) {
-                resolve(id);
-            } else {
-                reject(this.responseText);
-            }
-        };
-
-        request.open('PATCH', url, true);
-        request.setRequestHeader("X-CSRFToken", csrftoken);
-        request.send(null);
-    });
-}
-
-function _send_message_xhr(toAccountId, content) {
-    return new Promise(function (resolve, reject) {
-        var request = new XMLHttpRequest(),
-            url = _get_base_url() + '/communication/messages/',
-            data = {
-            to_account: toAccountId,
-            content: content
-        };
-
-        request.onload = function () {
-            if (this.status == 201) {
-                resolve(this.responseText);
-            } else {
-                reject(this.responseText);
-            }
-        };
-
-        request.open('POST', url, true);
-        request.setRequestHeader('X-CSRFToken', csrftoken);
-        request.setRequestHeader('Content-Type', 'application/json');
-        request.send(JSON.stringify(data));
-    });
-}
-
-// Function to send following request
-function _send_follow_xhr() {
-    return new Promise(function (resolve, reject) {
-        var request = new XMLHttpRequest(),
-            url = window.location.toString().replace('people', 'accounts') + 'follow/';
-
-        request.onload = function () {
-            if (this.status == 201) {
-                var result = JSON.parse(this.responseText);
-                resolve(result);
-            } else {
-                reject(this.status);
-            }
-        };
-
-        request.open('GET', url, true);
-        request.send(null);
-    });
-}
-
-function _send_stop_following_xhr() {
-    return new Promise(function (resolve, reject) {
-        var request = new XMLHttpRequest(),
-            url = window.location.toString().replace('people', 'accounts') + 'stop_following/';
-
-        request.onload = function () {
-            if (this.status == 204) {
-                resolve(AccountStore.AccountId);
-            } else {
-                reject(this.status);
-            }
-        };
-
-        request.open('GET', url, true);
-        request.send(null);
-    });
-}
 
 // ========== Account Store Class definition ============
 
@@ -31576,31 +31304,6 @@ var AccountStoreClass = (function (_EventEmitter) {
     }
 
     _createClass(AccountStoreClass, [{
-        key: 'fetchFollowing',
-        value: function fetchFollowing() {
-            return _get_following_data;
-        }
-    }, {
-        key: 'fetchForeignDecisions',
-        value: function fetchForeignDecisions() {
-            return _get_foreign_decisions;
-        }
-    }, {
-        key: 'fetchOwnDecisions',
-        value: function fetchOwnDecisions() {
-            return _get_own_decisions;
-        }
-    }, {
-        key: 'fetchIncomingMessages',
-        value: function fetchIncomingMessages() {
-            return _get_incoming_messages;
-        }
-    }, {
-        key: 'fetchOutcomingMessages',
-        value: function fetchOutcomingMessages() {
-            return _get_outcoming_messages;
-        }
-    }, {
         key: 'emitChange',
         value: function emitChange() {
             this.emit('change');
@@ -31616,32 +31319,28 @@ var AccountStoreClass = (function (_EventEmitter) {
             this.removeChangeListener('change', callback);
         }
     }, {
-        key: 'BaseUrl',
-        get: function get() {
-            return _get_base_url();
-        }
-    }, {
-        key: 'AccountId',
-        get: function get() {
-            var startIndex = _get_base_url().length + '/people/'.length,
-                charsCount = window.location.toString().length - startIndex - 1;
-            console.log(charsCount);
-            return window.location.toString().substr(startIndex, charsCount);
-        }
-    }, {
         key: 'Decisions',
         get: function get() {
             return _decisions;
+        },
+        set: function set(newValue) {
+            _decisions = newValue;
         }
     }, {
         key: 'OwnDecisions',
         get: function get() {
             return _own_decisions;
+        },
+        set: function set(newValue) {
+            _own_decisions = newValue;
         }
     }, {
         key: 'FollowingData',
         get: function get() {
             return _following;
+        },
+        set: function set(newValue) {
+            _following = newValue;
         }
     }, {
         key: 'First3Following',
@@ -31656,11 +31355,17 @@ var AccountStoreClass = (function (_EventEmitter) {
         key: 'IncomingMessages',
         get: function get() {
             return _incoming_messages;
+        },
+        set: function set(newValue) {
+            _incoming_messages = newValue;
         }
     }, {
         key: 'OutcomingMessages',
         get: function get() {
             return _outcoming_messages;
+        },
+        set: function set(newValue) {
+            _outcoming_messages = newValue;
         }
     }, {
         key: 'UnreadMessagesCount',
@@ -31680,7 +31385,6 @@ var AccountStoreClass = (function (_EventEmitter) {
 })(EventEmitter);
 
 var AccountStore = new AccountStoreClass();
-//console.log(AccountStore);
 
 AppDispatcher.register(function (payload) {
     switch (payload.actionType) {
@@ -31760,8 +31464,9 @@ AppDispatcher.register(function (payload) {
             }, function (error) {
                 console.log('voting failed');
             }).then(function (result) {
-                console.log('decisions updated');
+                AccountStore.Decisions = result;
                 AccountStore.emitChange();
+                console.log('decisions got');
             }, null);
             break;
 
@@ -31772,6 +31477,7 @@ AppDispatcher.register(function (payload) {
             }, function (error) {
                 console.log('vote cancelling failed');
             }).then(function (result) {
+                AccountStore.Decisions = result;
                 AccountStore.emitChange();
             }, null);
             break;
@@ -31781,8 +31487,9 @@ AppDispatcher.register(function (payload) {
                 console.log('decision created');
                 return _get_own_decisions();
             }, function (error) {
-                console.log('decision creation failed');
+                console.log(error);
             }).then(function (result) {
+                AccountStore.OwnDecisions = result;
                 AccountStore.emitChange();
             }, null);
             break;
@@ -31791,7 +31498,7 @@ AppDispatcher.register(function (payload) {
 });
 
 module.exports = AccountStore;
-},{"./AccountConstants":164,"./AppDispatcher":166,"events":1,"jquery":6,"underscore":162}],166:[function(require,module,exports){
+},{"./AccountConstants":164,"./AppDispatcher":166,"./XHRequest":178,"./utils":180,"events":1,"jquery":6,"underscore":162}],166:[function(require,module,exports){
 'use strict';
 
 var Dispatcher = require('flux').Dispatcher,
@@ -31983,6 +31690,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var React = require('react'),
+    baseUrl = require('./utils').baseUrl,
     AccountStore = require('./AccountStore');
 
 var First3Component = (function (_React$Component) {
@@ -32020,7 +31728,7 @@ var First3Component = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var accountUrl = AccountStore.BaseUrl + '/people/',
+            var accountUrl = baseUrl + '/people/',
                 listToRender = this.state.following.map(function (account) {
                 return React.createElement("div", { className: "small-fol", key: account.id }, React.createElement("img", { src: account.photo }), React.createElement("a", { href: accountUrl + account.id + '/' }, account.short_display_name));
             });
@@ -32032,7 +31740,7 @@ var First3Component = (function (_React$Component) {
 })(React.Component);
 
 module.exports = First3Component;
-},{"./AccountStore":165,"react":161}],170:[function(require,module,exports){
+},{"./AccountStore":165,"./utils":180,"react":161}],170:[function(require,module,exports){
 'use strict';
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -32156,6 +31864,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
 
 var React = require('react'),
     AccountStore = require('./AccountStore'),
+    baseUrl = require('./utils').baseUrl,
     AccountActions = require('./AccountActions');
 
 var InMessageComponent = (function (_React$Component) {
@@ -32204,7 +31913,7 @@ var InMessageComponent = (function (_React$Component) {
         value: function render() {
             var messageClass = 'panel panel-default ' + (this.props.data.read ? '' : ' unread'),
                 contentClass = 'message-content' + (this.state.full ? ' full' : ''),
-                personUrl = AccountStore.BaseUrl + '/people/' + this.props.data.from_account.id + '/',
+                personUrl = baseUrl + '/people/' + this.props.data.from_account.id + '/',
                 content = this.getContent();
             return React.createElement("div", { className: messageClass }, React.createElement("div", { className: "panel-heading" }, React.createElement("a", { className: "pull-right", onClick: this.removeMessage }, "Remove"), React.createElement("h4", null, "From: ", React.createElement("a", { className: "message-author", href: personUrl }, this.props.data.from_account.short_display_name))), React.createElement("div", { className: "panel-body" }, React.createElement("div", { className: "clearfix" }), React.createElement("div", { className: contentClass }, content), React.createElement("a", { className: "read-link", onClick: this.read }, "Read")));
         }
@@ -32214,7 +31923,7 @@ var InMessageComponent = (function (_React$Component) {
 })(React.Component);
 
 module.exports = InMessageComponent;
-},{"./AccountActions":163,"./AccountStore":165,"react":161}],172:[function(require,module,exports){
+},{"./AccountActions":163,"./AccountStore":165,"./utils":180,"react":161}],172:[function(require,module,exports){
 'use strict';
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -32282,6 +31991,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var React = require('react'),
+    baseUrl = require('./utils').baseUrl,
+    accountId = require('./utils').accountId,
     AccountStore = require('./AccountStore'),
     AccountActions = require('./AccountActions');
 
@@ -32323,9 +32034,8 @@ var MessageFormComponent = (function (_React$Component) {
     }, {
         key: 'sendMessage',
         value: function sendMessage() {
-            var content = document.getElementById('message-input').value,
-                toAccountId = AccountStore.AccountId;
-            AccountActions.sendMessage(toAccountId, content);
+            var content = document.getElementById('message-input').value;
+            AccountActions.sendMessage(accountId, content);
             this.close();
         }
     }, {
@@ -32333,7 +32043,7 @@ var MessageFormComponent = (function (_React$Component) {
         value: function render() {
             var defaultValue = 'Type your message here...',
                 displayName = this.getDisplayName(),
-                accountUrl = AccountStore.BaseUrl + '/people/' + AccountStore.AccountId + '/',
+                accountUrl = baseUrl + '/people/' + accountId + '/',
                 messageFormClass = 'message-form' + (this.state.opened ? ' opened' : '');
             return React.createElement("div", { className: "message-form-container" }, React.createElement("button", { className: "btn btn-info send-message-btn", onClick: this.open }, "Send message"), React.createElement("div", { className: messageFormClass }, React.createElement("h4", null, "Send message to ", React.createElement("a", { href: accountUrl }, displayName)), React.createElement("textarea", { id: "message-input", placeholder: defaultValue }), React.createElement("button", { className: "btn btn-primary", onClick: this.sendMessage }, "Send"), React.createElement("button", { className: "btn btn-default", onClick: this.close }, "Cancel")));
         }
@@ -32343,7 +32053,7 @@ var MessageFormComponent = (function (_React$Component) {
 })(React.Component);
 
 module.exports = MessageFormComponent;
-},{"./AccountActions":163,"./AccountStore":165,"react":161}],174:[function(require,module,exports){
+},{"./AccountActions":163,"./AccountStore":165,"./utils":180,"react":161}],174:[function(require,module,exports){
 'use strict';
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -32458,6 +32168,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var React = require('react'),
+    baseUrl = require('./utils').baseUrl,
     AccountStore = require('./AccountStore'),
     AccountActions = require('./AccountActions');
 
@@ -32504,7 +32215,7 @@ var OutMessageComponent = (function (_React$Component) {
         value: function render() {
             var messageClass = 'panel panel-default ' + (this.props.data.read ? '' : ' unread'),
                 contentClass = 'message-content' + (this.state.full ? ' full' : ''),
-                personUrl = AccountStore.BaseUrl + '/people/' + this.props.data.to_account.id + '/',
+                personUrl = baseUrl + '/people/' + this.props.data.to_account.id + '/',
                 content = this.getContent();
             return React.createElement("div", { className: messageClass }, React.createElement("div", { className: "panel-heading" }, React.createElement("a", { className: "pull-right", onClick: this.removeMessage }, "Remove"), React.createElement("h4", null, "To: ", React.createElement("a", { className: "message-author", href: personUrl }, this.props.data.to_account.short_display_name))), React.createElement("div", { className: "panel-body" }, React.createElement("div", { className: "clearfix" }), React.createElement("div", { className: contentClass }, content), React.createElement("a", { className: "read-link", onClick: this.read }, "Show full")));
         }
@@ -32514,9 +32225,87 @@ var OutMessageComponent = (function (_React$Component) {
 })(React.Component);
 
 module.exports = OutMessageComponent;
-},{"./AccountActions":163,"./AccountStore":165,"react":161}],176:[function(require,module,exports){
+},{"./AccountActions":163,"./AccountStore":165,"./utils":180,"react":161}],176:[function(require,module,exports){
+'use strict';
 
-},{}],177:[function(require,module,exports){
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var React = require('react'),
+    AccountActions = require('./AccountActions'),
+    AccountStore = require('./AccountStore');
+
+var OwnDecisionItemComponent = (function (_React$Component) {
+    _inherits(OwnDecisionItemComponent, _React$Component);
+
+    function OwnDecisionItemComponent() {
+        _classCallCheck(this, OwnDecisionItemComponent);
+
+        _get(Object.getPrototypeOf(OwnDecisionItemComponent.prototype), 'constructor', this).call(this);
+        this.getMaxVotes = this.getMaxVotes.bind(this);
+    }
+
+    _createClass(OwnDecisionItemComponent, [{
+        key: 'getMaxVotes',
+        value: function getMaxVotes() {
+            var choices = this.props.data.choices,
+                maxVotes = 0;
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = choices[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var choice = _step.value;
+
+                    if (choice.votes > maxVotes) {
+                        maxVotes = choice.votes;
+                    }
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator['return']) {
+                        _iterator['return']();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+
+            return maxVotes;
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var maxVotes = this.getMaxVotes(),
+
+            // getting choice list
+            choices_list = this.props.data.choices.map(function (choice) {
+                var widthStyle = {
+                    width: maxVotes !== 0 ? Math.floor(choice.votes / maxVotes) * 450 + 20 : 20
+                };
+                return React.createElement("div", { className: "choice", key: choice.id }, React.createElement("p", { className: "vote-link" }, React.createElement("a", { className: "not-active" }, choice.content), React.createElement("span", null, choice.votes)), React.createElement("div", { className: "indicator", style: widthStyle }));
+            });
+
+            return React.createElement("div", { className: "decision" }, React.createElement("div", { className: "panel-body" }, React.createElement("h4", null, this.props.data.heading), React.createElement("div", { className: "decision-content" }, React.createElement("p", null, this.props.data.content), React.createElement("div", { className: "choices-list" }, choices_list))));
+        }
+    }]);
+
+    return OwnDecisionItemComponent;
+})(React.Component);
+
+module.exports = OwnDecisionItemComponent;
+},{"./AccountActions":163,"./AccountStore":165,"react":161}],177:[function(require,module,exports){
 'use strict';
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -32633,6 +32422,265 @@ module.exports = OwnDecisionsComponent;
 },{"./AccountActions":163,"./AccountStore":165,"./OwnDecisionItemComponent":176,"react":161}],178:[function(require,module,exports){
 'use strict';
 
+var csrftoken = require('./utils').csrftoken,
+    baseUrl = require('./utils').baseUrl,
+    accountId = require('./utils').accountId;
+
+module.exports = {
+
+    _get_foreign_decisions: function _get_foreign_decisions() {
+        return new Promise(function (resolve, reject) {
+            var request = new XMLHttpRequest(),
+                url = baseUrl + '/accounts/' + accountId + '/decisions/';
+
+            request.onload = function () {
+                if (this.status == 200) {
+                    resolve(JSON.parse(this.responseText));
+                } else {
+                    reject(this.responseText);
+                }
+            };
+
+            request.open('GET', url, true);
+            request.send(null);
+        });
+    },
+
+    _get_own_decisions: function _get_own_decisions() {
+        return new Promise(function (resolve, reject) {
+            var request = new XMLHttpRequest(),
+                url = baseUrl + '/decisions-api/decisions/own_decisions/';
+
+            request.onload = function () {
+                if (this.status == 200) {
+                    resolve(JSON.parse(this.responseText));
+                } else {
+                    reject(this.responseText);
+                }
+            };
+
+            request.open('GET', url, true);
+            request.send(null);
+        });
+    },
+
+    _create_decision_xhr: function _create_decision_xhr(data) {
+        return new Promise(function (resolve, reject) {
+            var request = new XMLHttpRequest(),
+                url = baseUrl + '/decisions-api/decisions/';
+
+            request.onload = function () {
+                if (this.status == 201) {
+                    resolve(this.responseText);
+                } else {
+                    reject(this.responseText);
+                }
+            };
+
+            request.open('POST', url, true);
+            request.setRequestHeader('Content-Type', 'application/json');
+            request.setRequestHeader("X-CSRFToken", csrftoken);
+            request.send(JSON.stringify(data));
+        });
+    },
+
+    _vote_xhr: function _vote_xhr(choiceId) {
+        return new Promise(function (resolve, reject) {
+            var request = new XMLHttpRequest(),
+                url = baseUrl + '/decisions-api/votes/';
+
+            request.onload = function () {
+                if (this.status == 201) {
+                    resolve(this.responseText);
+                } else {
+                    reject(this.responseText);
+                }
+            };
+
+            request.open('POST', url, true);
+            request.setRequestHeader('Content-Type', 'application/json');
+            request.setRequestHeader("X-CSRFToken", csrftoken);
+            request.send(JSON.stringify({ choice: choiceId }));
+        });
+    },
+
+    _cancel_vote_xhr: function _cancel_vote_xhr(decisionId) {
+        return new Promise(function (resolve, reject) {
+            var request = new XMLHttpRequest(),
+                url = baseUrl + '/decisions-api/decisions/' + decisionId + '/cancel_vote/';
+
+            request.onload = function () {
+                if (this.status == 204) {
+                    resolve(this.responseText);
+                } else {
+                    reject(this.responseText);
+                }
+            };
+
+            request.open('DELETE', url, true);
+            request.setRequestHeader("X-CSRFToken", csrftoken);
+            request.send(null);
+        });
+    },
+
+    _get_following_data: function _get_following_data() {
+        return new Promise(function (resolve, reject) {
+            var request = new XMLHttpRequest(),
+                url = baseUrl + '/accounts/following/';
+
+            request.onload = function () {
+                if (this.status == 200) {
+                    resolve(JSON.parse(this.responseText));
+                } else {
+                    reject(this.responseText);
+                }
+            };
+
+            request.open('GET', url, true);
+            request.send(null);
+        });
+    },
+
+    _get_incoming_messages: function _get_incoming_messages() {
+        return new Promise(function (resolve, reject) {
+            var request = new XMLHttpRequest(),
+                url = baseUrl + '/communication/messages/incoming/';
+
+            request.onload = function () {
+                if (this.status == 200) {
+                    resolve(JSON.parse(this.responseText).reverse());
+                } else {
+                    console.log(this.responseText);
+                }
+            };
+
+            request.open('GET', url, true);
+            request.send(null);
+        });
+    },
+
+    _get_outcoming_messages: function _get_outcoming_messages() {
+        return new Promise(function (resolve, reject) {
+            var request = new XMLHttpRequest(),
+                url = baseUrl + '/communication/messages/outcoming/';
+
+            request.onload = function () {
+                if (this.status == 200) {
+                    console.log('outmes -> ', JSON.parse(this.responseText));
+                    resolve(JSON.parse(this.responseText).reverse());
+                } else {
+                    console.log(this.responseText);
+                }
+            };
+
+            request.open('GET', url, true);
+            request.send(null);
+        });
+    },
+
+    _send_remove_message_xhr: function _send_remove_message_xhr(id) {
+        return new Promise(function (resolve, reject) {
+            var request = new XMLHttpRequest(),
+                url = baseUrl + ('/communication/messages/' + id + '/remove/');
+
+            request.onload = function () {
+                if (this.status == 200) {
+                    resolve(id);
+                } else {
+                    reject(this.responseText);
+                }
+            };
+
+            request.open('PATCH', url, true);
+            request.setRequestHeader("X-CSRFToken", csrftoken);
+            request.send(null);
+        });
+    },
+
+    _send_read_message_xhr: function _send_read_message_xhr(id) {
+        return new Promise(function (resolve, reject) {
+            var request = new XMLHttpRequest(),
+                url = baseUrl + ('/communication/messages/' + id + '/read/');
+
+            request.onload = function () {
+                if (this.status == 200) {
+                    resolve(id);
+                } else {
+                    reject(this.responseText);
+                }
+            };
+
+            request.open('PATCH', url, true);
+            request.setRequestHeader("X-CSRFToken", csrftoken);
+            request.send(null);
+        });
+    },
+
+    _send_message_xhr: function _send_message_xhr(toAccountId, content) {
+        return new Promise(function (resolve, reject) {
+            var request = new XMLHttpRequest(),
+                url = baseUrl + '/communication/messages/',
+                data = {
+                to_account: toAccountId,
+                content: content
+            };
+
+            request.onload = function () {
+                if (this.status == 201) {
+                    resolve(this.responseText);
+                } else {
+                    reject(this.responseText);
+                }
+            };
+
+            request.open('POST', url, true);
+            request.setRequestHeader('X-CSRFToken', csrftoken);
+            request.setRequestHeader('Content-Type', 'application/json');
+            request.send(JSON.stringify(data));
+        });
+    },
+
+    _send_follow_xhr: function _send_follow_xhr() {
+        return new Promise(function (resolve, reject) {
+            var request = new XMLHttpRequest(),
+                url = window.location.toString().replace('people', 'accounts') + 'follow/';
+
+            request.onload = function () {
+                if (this.status == 201) {
+                    var result = JSON.parse(this.responseText);
+                    resolve(result);
+                } else {
+                    reject(this.status);
+                }
+            };
+
+            request.open('GET', url, true);
+            request.send(null);
+        });
+    },
+
+    _send_stop_following_xhr: function _send_stop_following_xhr() {
+        return new Promise(function (resolve, reject) {
+            var request = new XMLHttpRequest(),
+                url = window.location.toString().replace('people', 'accounts') + 'stop_following/';
+
+            request.onload = function () {
+                if (this.status == 204) {
+                    resolve(accountId);
+                } else {
+                    reject(this.status);
+                }
+            };
+
+            request.open('GET', url, true);
+            request.send(null);
+        });
+    }
+
+};
+},{"./utils":180}],179:[function(require,module,exports){
+'use strict';
+
 var React = require('react'),
     FollowButtonComponent = require('./FollowButtonComponent'),
     First3Component = require('./First3Component'),
@@ -32651,15 +32699,21 @@ var follow_container = document.getElementById('follow-button-container'),
     own_decisions_container = document.getElementById('own-decisions-container'),
     message_container = document.getElementById('messages-container');
 
-var accountId = AccountStore.AccountId;
+var _get_foreign_decisions = require('./XHRequest')._get_foreign_decisions,
+    _get_own_decisions = require('./XHRequest')._get_own_decisions,
+    _get_following_data = require('./XHRequest')._get_following_data,
+    _get_incoming_messages = require('./XHRequest')._get_incoming_messages,
+    _get_outcoming_messages = require('./XHRequest')._get_outcoming_messages;
+
+var accountId = require('./utils').accountId;
 
 // if own certain dom element exists, we can assume we are at certain page.
 // that's why we fetch in promise required data and then render components.
 
 // PROFILE PAGE
 if (own_decisions_container !== null) {
-    var fetchOwnDecisions = AccountStore.fetchOwnDecisions();
-    fetchOwnDecisions().then(function (result) {
+    _get_own_decisions().then(function (result) {
+        AccountStore.OwnDecisions = result;
         React.render(React.createElement(OwnDecisionsComponent, null), own_decisions_container);
     }, null);
 } else {
@@ -32668,9 +32722,9 @@ if (own_decisions_container !== null) {
 
 // FOREIGN PROFILE PAGE
 if (follow_container !== null) {
-    var fetchFollowingPromise = AccountStore.fetchFollowing(),
-        fetchForeignDecisionsPromise = AccountStore.fetchForeignDecisions();
-    Promise.all([fetchFollowingPromise(), fetchForeignDecisionsPromise()]).then(function (result) {
+    Promise.all([_get_following_data(), _get_foreign_decisions()]).then(function (results) {
+        AccountStore.FollowingData = results[0];
+        AccountStore.Decisions = results[1];
         React.render(React.createElement(FollowButtonComponent, { accountId: accountId }), follow_container);
         React.render(React.createElement(First3Component, null), fol_list_container);
         React.render(React.createElement(DecisionsComponent, null), decisions_container);
@@ -32681,20 +32735,18 @@ if (follow_container !== null) {
 
 // MESSAGES PAGE
 if (message_container !== null) {
-    (function () {
-        var fetchIncomingMessages = AccountStore.fetchIncomingMessages(),
-            fetchOutcomingMessages = AccountStore.fetchOutcomingMessages();
-        fetchIncomingMessages().then(function (result) {
-            return fetchOutcomingMessages();
-        }, function (error) {
-            console.log('incoming messages loading failed');
-        }).then(function (result) {
-            React.render(React.createElement(MessagesComponent, null), message_container);
-            React.render(React.createElement(MessageCounterComponent, null), message_counter_container);
-        }, function (error) {
-            console.log('outcoming messages loading failed');
-        });
-    })();
+    _get_incoming_messages().then(function (result) {
+        AccountStore.IncomingMessages = result;
+        return _get_outcoming_messages();
+    }, function (error) {
+        console.log('incoming messages loading failed');
+    }).then(function (result) {
+        AccountStore.OutcomingMessages = result;
+        React.render(React.createElement(MessagesComponent, null), message_container);
+        React.render(React.createElement(MessageCounterComponent, null), message_counter_container);
+    }, function (error) {
+        console.log('outcoming messages loading failed');
+    });
 } else {
     console.log('no place for messages');
 }
@@ -32704,4 +32756,47 @@ if (message_sending_container !== null) {
 } else {
     console.log('No place for message form');
 }
-},{"./AccountStore":165,"./DecisionsComponent":168,"./First3Component":169,"./FollowButtonComponent":170,"./MessageCounterComponent":172,"./MessageFormComponent":173,"./MessagesComponent":174,"./OwnDecisionsComponent":177,"react":161}]},{},[178]);
+},{"./AccountStore":165,"./DecisionsComponent":168,"./First3Component":169,"./FollowButtonComponent":170,"./MessageCounterComponent":172,"./MessageFormComponent":173,"./MessagesComponent":174,"./OwnDecisionsComponent":177,"./XHRequest":178,"./utils":180,"react":161}],180:[function(require,module,exports){
+'use strict';
+
+var jQuery = require('jquery');
+
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            if (cookie.substring(0, name.length + 1) == name + '=') {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function _get_base_url() {
+    var prev = window.location.hostname;
+    if (prev == '127.0.0.1') {
+        return 'http://' + prev + ':8000';
+    } else {
+        return prev;
+    }
+}
+
+function getAccountId() {
+    var startIndex = _get_base_url().length + '/people/'.length,
+        charsCount = window.location.toString().length - startIndex - 1;
+    console.log(charsCount);
+    return window.location.toString().substr(startIndex, charsCount);
+}
+
+module.exports = {
+
+    csrftoken: getCookie('csrftoken'),
+    baseUrl: _get_base_url(),
+    accountId: getAccountId()
+
+};
+},{"jquery":6}]},{},[179]);

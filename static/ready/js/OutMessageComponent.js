@@ -9,6 +9,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var React = require('react'),
+    baseUrl = require('./utils').baseUrl,
     AccountStore = require('./AccountStore'),
     AccountActions = require('./AccountActions');
 
@@ -55,7 +56,7 @@ var OutMessageComponent = (function (_React$Component) {
         value: function render() {
             var messageClass = 'panel panel-default ' + (this.props.data.read ? '' : ' unread'),
                 contentClass = 'message-content' + (this.state.full ? ' full' : ''),
-                personUrl = AccountStore.BaseUrl + '/people/' + this.props.data.to_account.id + '/',
+                personUrl = baseUrl + '/people/' + this.props.data.to_account.id + '/',
                 content = this.getContent();
             return React.createElement("div", { className: messageClass }, React.createElement("div", { className: "panel-heading" }, React.createElement("a", { className: "pull-right", onClick: this.removeMessage }, "Remove"), React.createElement("h4", null, "To: ", React.createElement("a", { className: "message-author", href: personUrl }, this.props.data.to_account.short_display_name))), React.createElement("div", { className: "panel-body" }, React.createElement("div", { className: "clearfix" }), React.createElement("div", { className: contentClass }, content), React.createElement("a", { className: "read-link", onClick: this.read }, "Show full")));
         }

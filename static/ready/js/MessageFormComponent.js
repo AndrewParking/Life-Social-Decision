@@ -9,6 +9,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var React = require('react'),
+    baseUrl = require('./utils').baseUrl,
+    accountId = require('./utils').accountId,
     AccountStore = require('./AccountStore'),
     AccountActions = require('./AccountActions');
 
@@ -50,9 +52,8 @@ var MessageFormComponent = (function (_React$Component) {
     }, {
         key: 'sendMessage',
         value: function sendMessage() {
-            var content = document.getElementById('message-input').value,
-                toAccountId = AccountStore.AccountId;
-            AccountActions.sendMessage(toAccountId, content);
+            var content = document.getElementById('message-input').value;
+            AccountActions.sendMessage(accountId, content);
             this.close();
         }
     }, {
@@ -60,7 +61,7 @@ var MessageFormComponent = (function (_React$Component) {
         value: function render() {
             var defaultValue = 'Type your message here...',
                 displayName = this.getDisplayName(),
-                accountUrl = AccountStore.BaseUrl + '/people/' + AccountStore.AccountId + '/',
+                accountUrl = baseUrl + '/people/' + accountId + '/',
                 messageFormClass = 'message-form' + (this.state.opened ? ' opened' : '');
             return React.createElement("div", { className: "message-form-container" }, React.createElement("button", { className: "btn btn-info send-message-btn", onClick: this.open }, "Send message"), React.createElement("div", { className: messageFormClass }, React.createElement("h4", null, "Send message to ", React.createElement("a", { href: accountUrl }, displayName)), React.createElement("textarea", { id: "message-input", placeholder: defaultValue }), React.createElement("button", { className: "btn btn-primary", onClick: this.sendMessage }, "Send"), React.createElement("button", { className: "btn btn-default", onClick: this.close }, "Cancel")));
         }

@@ -17,16 +17,25 @@ var follow_container = document.getElementById('follow-button-container'),
     own_decisions_container = document.getElementById('own-decisions-container'),
     message_container = document.getElementById('messages-container');
 
-var accountId = AccountStore.AccountId;
+
+var _get_foreign_decisions = require('./XHRequest')._get_foreign_decisions,
+    _get_own_decisions = require('./XHRequest')._get_own_decisions,
+    _get_following_data = require('./XHRequest')._get_following_data,
+    _get_incoming_messages = require('./XHRequest')._get_incoming_messages,
+    _get_outcoming_messages = require('./XHRequest')._get_outcoming_messages;
+
+
+var accountId = require('./utils').accountId;
 
 // if own certain dom element exists, we can assume we are at certain page.
 // that's why we fetch in promise required data and then render components.
 
+
 // PROFILE PAGE
 if (own_decisions_container !== null) {
-    let fetchOwnDecisions = AccountStore.fetchOwnDecisions();
-    fetchOwnDecisions()
+    _get_own_decisions()
         .then(result => {
+            AccountStore.OwnDecisions = result;
             React.render(
                 <OwnDecisionsComponent />,
                 own_decisions_container
@@ -39,12 +48,12 @@ if (own_decisions_container !== null) {
 
 // FOREIGN PROFILE PAGE
 if (follow_container !== null) {
-    let fetchFollowingPromise = AccountStore.fetchFollowing(),
-        fetchForeignDecisionsPromise = AccountStore.fetchForeignDecisions();
     Promise.all([
-        fetchFollowingPromise(),
-        fetchForeignDecisionsPromise()
-    ]).then(result => {
+        _get_following_data(),
+        _get_foreign_decisions()
+    ]).then(results => {
+            AccountStore.FollowingData = results[0];
+            AccountStore.Decisions = results[1];
             React.render(
                 <FollowButtonComponent accountId={accountId} />,
                 follow_container
@@ -65,15 +74,15 @@ if (follow_container !== null) {
 
 // MESSAGES PAGE
 if (message_container !== null) {
-    let fetchIncomingMessages = AccountStore.fetchIncomingMessages(),
-        fetchOutcomingMessages = AccountStore.fetchOutcomingMessages();
-    fetchIncomingMessages()
+    _get_incoming_messages()
         .then(result => {
-            return fetchOutcomingMessages();
+            AccountStore.IncomingMessages = result;
+            return _get_outcoming_messages();
         }, error => {
             console.log('incoming messages loading failed');
         })
         .then(result => {
+            AccountStore.OutcomingMessages = result;
             React.render(
                 <MessagesComponent />,
                 message_container

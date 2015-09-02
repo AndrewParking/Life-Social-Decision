@@ -1,4 +1,5 @@
 var React = require('react'),
+    baseUrl = require('./utils').baseUrl,
     AccountStore = require('./AccountStore'),
     AccountActions = require('./AccountActions');
 
@@ -38,7 +39,7 @@ class OutMessageComponent extends React.Component {
     render() {
         let messageClass =`panel panel-default ${this.props.data.read ? '' : ' unread'}`,
             contentClass = 'message-content' + (this.state.full ? ' full' : ''),
-            personUrl = AccountStore.BaseUrl + '/people/' + this.props.data.to_account.id + '/',
+            personUrl = baseUrl + '/people/' + this.props.data.to_account.id + '/',
             content = this.getContent();
         return (
             <div className={messageClass}>

@@ -1,4 +1,6 @@
 var React = require('react'),
+    baseUrl = require('./utils').baseUrl,
+    accountId = require('./utils').accountId,
     AccountStore = require('./AccountStore'),
     AccountActions = require('./AccountActions');
 
@@ -33,16 +35,15 @@ class MessageFormComponent extends React.Component {
     }
 
     sendMessage() {
-        let content = document.getElementById('message-input').value,
-            toAccountId = AccountStore.AccountId;
-        AccountActions.sendMessage(toAccountId, content);
+        let content = document.getElementById('message-input').value;
+        AccountActions.sendMessage(accountId, content);
         this.close();
     }
 
     render() {
         let defaultValue = 'Type your message here...',
             displayName = this.getDisplayName(),
-            accountUrl = AccountStore.BaseUrl + '/people/' + AccountStore.AccountId + '/',
+            accountUrl = baseUrl + '/people/' + accountId + '/',
             messageFormClass = 'message-form' + (this.state.opened ? ' opened' : '');
         return (
             <div className="message-form-container">

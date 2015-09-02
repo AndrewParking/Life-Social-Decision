@@ -9,6 +9,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var React = require('react'),
+    baseUrl = require('./utils').baseUrl,
     AccountStore = require('./AccountStore');
 
 var First3Component = (function (_React$Component) {
@@ -46,7 +47,7 @@ var First3Component = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var accountUrl = AccountStore.BaseUrl + '/people/',
+            var accountUrl = baseUrl + '/people/',
                 listToRender = this.state.following.map(function (account) {
                 return React.createElement("div", { className: "small-fol", key: account.id }, React.createElement("img", { src: account.photo }), React.createElement("a", { href: accountUrl + account.id + '/' }, account.short_display_name));
             });

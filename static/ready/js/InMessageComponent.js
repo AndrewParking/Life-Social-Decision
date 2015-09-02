@@ -10,6 +10,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
 
 var React = require('react'),
     AccountStore = require('./AccountStore'),
+    baseUrl = require('./utils').baseUrl,
     AccountActions = require('./AccountActions');
 
 var InMessageComponent = (function (_React$Component) {
@@ -58,7 +59,7 @@ var InMessageComponent = (function (_React$Component) {
         value: function render() {
             var messageClass = 'panel panel-default ' + (this.props.data.read ? '' : ' unread'),
                 contentClass = 'message-content' + (this.state.full ? ' full' : ''),
-                personUrl = AccountStore.BaseUrl + '/people/' + this.props.data.from_account.id + '/',
+                personUrl = baseUrl + '/people/' + this.props.data.from_account.id + '/',
                 content = this.getContent();
             return React.createElement("div", { className: messageClass }, React.createElement("div", { className: "panel-heading" }, React.createElement("a", { className: "pull-right", onClick: this.removeMessage }, "Remove"), React.createElement("h4", null, "From: ", React.createElement("a", { className: "message-author", href: personUrl }, this.props.data.from_account.short_display_name))), React.createElement("div", { className: "panel-body" }, React.createElement("div", { className: "clearfix" }), React.createElement("div", { className: contentClass }, content), React.createElement("a", { className: "read-link", onClick: this.read }, "Read")));
         }
