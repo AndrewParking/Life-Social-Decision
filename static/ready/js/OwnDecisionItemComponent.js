@@ -20,6 +20,7 @@ var OwnDecisionItemComponent = (function (_React$Component) {
 
         _get(Object.getPrototypeOf(OwnDecisionItemComponent.prototype), 'constructor', this).call(this);
         this.getMaxVotes = this.getMaxVotes.bind(this);
+        this.deleteDecision = this.deleteDecision.bind(this);
     }
 
     _createClass(OwnDecisionItemComponent, [{
@@ -57,6 +58,11 @@ var OwnDecisionItemComponent = (function (_React$Component) {
             return maxVotes;
         }
     }, {
+        key: 'deleteDecision',
+        value: function deleteDecision() {
+            AccountActions.deleteDecision(this.props.data.id);
+        }
+    }, {
         key: 'render',
         value: function render() {
             var maxVotes = this.getMaxVotes(),
@@ -69,7 +75,7 @@ var OwnDecisionItemComponent = (function (_React$Component) {
                 return React.createElement("div", { className: "choice", key: choice.id }, React.createElement("p", { className: "vote-link" }, React.createElement("a", { className: "not-active" }, choice.content), React.createElement("span", null, choice.votes)), React.createElement("div", { className: "indicator", style: widthStyle }));
             });
 
-            return React.createElement("div", { className: "decision" }, React.createElement("div", { className: "panel-body" }, React.createElement("h4", null, this.props.data.heading), React.createElement("div", { className: "decision-content" }, React.createElement("p", null, this.props.data.content), React.createElement("div", { className: "choices-list" }, choices_list))));
+            return React.createElement("div", { className: "decision" }, React.createElement("div", { className: "panel-body" }, React.createElement("h4", null, this.props.data.heading, React.createElement("button", { className: "pull-right del-decision", onClick: this.deleteDecision }, "x")), React.createElement("div", { className: "decision-content" }, React.createElement("p", null, this.props.data.content), React.createElement("div", { className: "choices-list" }, choices_list))));
         }
     }]);
 

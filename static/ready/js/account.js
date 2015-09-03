@@ -31235,6 +31235,13 @@ var AccountActions = {
             actionType: AccountConstants.CREATE_DECISION,
             data: data
         });
+    },
+
+    deleteDecision: function deleteDecision(id) {
+        AppDispatcher.dispatch({
+            actionType: AccountConstants.DELETE_DECISION,
+            id: id
+        });
     }
 
 };
@@ -31253,7 +31260,8 @@ module.exports = keyMirror({
     SEND_MESSAGE: null,
     VOTE: null,
     CANCEL_VOTE: null,
-    CREATE_DECISION: null
+    CREATE_DECISION: null,
+    DELETE_DECISION: null
 });
 },{"react/lib/keyMirror":146}],165:[function(require,module,exports){
 'use strict';
@@ -31275,6 +31283,7 @@ var AppDispatcher = require('./AppDispatcher'),
 var _get_foreign_decisions = require('./XHRequest')._get_foreign_decisions,
     _get_own_decisions = require('./XHRequest')._get_own_decisions,
     _create_decision_xhr = require('./XHRequest')._create_decision_xhr,
+    _delete_decision_xhr = require('./XHRequest')._delete_decision_xhr,
     _vote_xhr = require('./XHRequest')._vote_xhr,
     _cancel_vote_xhr = require('./XHRequest')._cancel_vote_xhr,
     _get_following_data = require('./XHRequest')._get_following_data,
@@ -31484,7 +31493,6 @@ AppDispatcher.register(function (payload) {
 
         case AccountConstants.CREATE_DECISION:
             _create_decision_xhr(payload.data).then(function (result) {
-                console.log('decision created');
                 return _get_own_decisions();
             }, function (error) {
                 console.log(error);
@@ -31492,6 +31500,19 @@ AppDispatcher.register(function (payload) {
                 AccountStore.OwnDecisions = result;
                 AccountStore.emitChange();
             }, null);
+            break;
+
+        case AccountConstants.DELETE_DECISION:
+            _delete_decision_xhr(payload.id).then(function (result) {
+                return _get_own_decisions();
+            }, function (error) {
+                console.log(error);
+            }).then(function (result) {
+                AccountStore.OwnDecisions = result;
+                AccountStore.emitChange();
+            }, function (error) {
+                console.log(error);
+            });
             break;
     }
     return true;
@@ -32248,6 +32269,7 @@ var OwnDecisionItemComponent = (function (_React$Component) {
 
         _get(Object.getPrototypeOf(OwnDecisionItemComponent.prototype), 'constructor', this).call(this);
         this.getMaxVotes = this.getMaxVotes.bind(this);
+        this.deleteDecision = this.deleteDecision.bind(this);
     }
 
     _createClass(OwnDecisionItemComponent, [{
@@ -32285,6 +32307,11 @@ var OwnDecisionItemComponent = (function (_React$Component) {
             return maxVotes;
         }
     }, {
+        key: 'deleteDecision',
+        value: function deleteDecision() {
+            AccountActions.deleteDecision(this.props.data.id);
+        }
+    }, {
         key: 'render',
         value: function render() {
             var maxVotes = this.getMaxVotes(),
@@ -32297,7 +32324,7 @@ var OwnDecisionItemComponent = (function (_React$Component) {
                 return React.createElement("div", { className: "choice", key: choice.id }, React.createElement("p", { className: "vote-link" }, React.createElement("a", { className: "not-active" }, choice.content), React.createElement("span", null, choice.votes)), React.createElement("div", { className: "indicator", style: widthStyle }));
             });
 
-            return React.createElement("div", { className: "decision" }, React.createElement("div", { className: "panel-body" }, React.createElement("h4", null, this.props.data.heading), React.createElement("div", { className: "decision-content" }, React.createElement("p", null, this.props.data.content), React.createElement("div", { className: "choices-list" }, choices_list))));
+            return React.createElement("div", { className: "decision" }, React.createElement("div", { className: "panel-body" }, React.createElement("h4", null, this.props.data.heading, React.createElement("button", { className: "pull-right del-decision", onClick: this.deleteDecision }, "x")), React.createElement("div", { className: "decision-content" }, React.createElement("p", null, this.props.data.content), React.createElement("div", { className: "choices-list" }, choices_list))));
         }
     }]);
 
@@ -32337,6 +32364,7 @@ var OwnDecisionsComponent = (function (_React$Component) {
         this.getChoicesInputs = this.getChoicesInputs.bind(this);
         this.addOneChoice = this.addOneChoice.bind(this);
         this.createDecision = this.createDecision.bind(this);
+        this.clearInputs = this.clearInputs.bind(this);
     }
 
     _createClass(OwnDecisionsComponent, [{
@@ -32348,6 +32376,22 @@ var OwnDecisionsComponent = (function (_React$Component) {
         key: 'componentWillUnmount',
         value: function componentWillUnmount() {
             AccountStore.removeChangeListener(this._onChange);
+        }
+    }, {
+        key: 'clearInputs',
+        value: function clearInputs() {
+            document.getElementById('decision-heading').value = '';
+            document.getElementById('decision-content').value = '';
+            var choiceInputs = document.getElementsByClassName('choice-input');
+            for (var i = 0, len = choiceInputs.length; i < len; i++) {
+                choiceInputs[i].value = '';
+            }
+            this.setState(function (prevState) {
+                return {
+                    decisions: prevState.decisions,
+                    choicesInputCount: 2
+                };
+            });
         }
     }, {
         key: '_onChange',
@@ -32403,6 +32447,7 @@ var OwnDecisionsComponent = (function (_React$Component) {
                 content: content,
                 choices: choices
             });
+            this.clearInputs();
         }
     }, {
         key: 'render',
@@ -32481,6 +32526,25 @@ module.exports = {
             request.setRequestHeader('Content-Type', 'application/json');
             request.setRequestHeader("X-CSRFToken", csrftoken);
             request.send(JSON.stringify(data));
+        });
+    },
+
+    _delete_decision_xhr: function _delete_decision_xhr(id) {
+        return new Promise(function (resolve, reject) {
+            var request = new XMLHttpRequest(),
+                url = baseUrl + '/decisions-api/decisions/' + id + '/';
+
+            request.onload = function () {
+                if (this.status == 204) {
+                    resolve(this.responseText);
+                } else {
+                    reject(this.responseText);
+                }
+            };
+
+            request.open('DELETE', url, true);
+            request.setRequestHeader("X-CSRFToken", csrftoken);
+            request.send(null);
         });
     },
 

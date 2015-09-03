@@ -17,6 +17,7 @@ var AppDispatcher = require('./AppDispatcher'),
 var _get_foreign_decisions = require('./XHRequest')._get_foreign_decisions,
     _get_own_decisions = require('./XHRequest')._get_own_decisions,
     _create_decision_xhr = require('./XHRequest')._create_decision_xhr,
+    _delete_decision_xhr = require('./XHRequest')._delete_decision_xhr,
     _vote_xhr = require('./XHRequest')._vote_xhr,
     _cancel_vote_xhr = require('./XHRequest')._cancel_vote_xhr,
     _get_following_data = require('./XHRequest')._get_following_data,
@@ -226,7 +227,6 @@ AppDispatcher.register(function (payload) {
 
         case AccountConstants.CREATE_DECISION:
             _create_decision_xhr(payload.data).then(function (result) {
-                console.log('decision created');
                 return _get_own_decisions();
             }, function (error) {
                 console.log(error);
@@ -234,6 +234,19 @@ AppDispatcher.register(function (payload) {
                 AccountStore.OwnDecisions = result;
                 AccountStore.emitChange();
             }, null);
+            break;
+
+        case AccountConstants.DELETE_DECISION:
+            _delete_decision_xhr(payload.id).then(function (result) {
+                return _get_own_decisions();
+            }, function (error) {
+                console.log(error);
+            }).then(function (result) {
+                AccountStore.OwnDecisions = result;
+                AccountStore.emitChange();
+            }, function (error) {
+                console.log(error);
+            });
             break;
     }
     return true;

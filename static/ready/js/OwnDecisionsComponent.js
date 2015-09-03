@@ -29,6 +29,7 @@ var OwnDecisionsComponent = (function (_React$Component) {
         this.getChoicesInputs = this.getChoicesInputs.bind(this);
         this.addOneChoice = this.addOneChoice.bind(this);
         this.createDecision = this.createDecision.bind(this);
+        this.clearInputs = this.clearInputs.bind(this);
     }
 
     _createClass(OwnDecisionsComponent, [{
@@ -40,6 +41,22 @@ var OwnDecisionsComponent = (function (_React$Component) {
         key: 'componentWillUnmount',
         value: function componentWillUnmount() {
             AccountStore.removeChangeListener(this._onChange);
+        }
+    }, {
+        key: 'clearInputs',
+        value: function clearInputs() {
+            document.getElementById('decision-heading').value = '';
+            document.getElementById('decision-content').value = '';
+            var choiceInputs = document.getElementsByClassName('choice-input');
+            for (var i = 0, len = choiceInputs.length; i < len; i++) {
+                choiceInputs[i].value = '';
+            }
+            this.setState(function (prevState) {
+                return {
+                    decisions: prevState.decisions,
+                    choicesInputCount: 2
+                };
+            });
         }
     }, {
         key: '_onChange',
@@ -95,6 +112,7 @@ var OwnDecisionsComponent = (function (_React$Component) {
                 content: content,
                 choices: choices
             });
+            this.clearInputs();
         }
     }, {
         key: 'render',

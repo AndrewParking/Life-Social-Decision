@@ -17,6 +17,7 @@ class OwnDecisionsComponent extends React.Component {
         this.getChoicesInputs = this.getChoicesInputs.bind(this);
         this.addOneChoice = this.addOneChoice.bind(this);
         this.createDecision = this.createDecision.bind(this);
+        this.clearInputs = this.clearInputs.bind(this);
     }
 
     componentDidMount() {
@@ -25,6 +26,21 @@ class OwnDecisionsComponent extends React.Component {
 
     componentWillUnmount() {
         AccountStore.removeChangeListener(this._onChange);
+    }
+
+    clearInputs() {
+        document.getElementById('decision-heading').value = '';
+        document.getElementById('decision-content').value = '';
+        let choiceInputs = document.getElementsByClassName('choice-input');
+        for (let i=0, len=choiceInputs.length; i<len; i++) {
+            choiceInputs[i].value = '';
+        }
+        this.setState(prevState => {
+            return {
+                decisions: prevState.decisions,
+                choicesInputCount: 2
+            }
+        });
     }
 
     _onChange() {
@@ -76,6 +92,7 @@ class OwnDecisionsComponent extends React.Component {
             content: content,
             choices: choices
         });
+        this.clearInputs();
     }
 
     render() {

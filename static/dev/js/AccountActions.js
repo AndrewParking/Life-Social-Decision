@@ -63,6 +63,13 @@ var AccountActions = {
         });
     },
 
+    deleteDecision(id) {
+        AppDispatcher.dispatch({
+            actionType: AccountConstants.DELETE_DECISION,
+            id: id
+        });
+    },
+
 };
 
 module.exports = AccountActions;

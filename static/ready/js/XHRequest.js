@@ -62,6 +62,25 @@ module.exports = {
         });
     },
 
+    _delete_decision_xhr: function _delete_decision_xhr(id) {
+        return new Promise(function (resolve, reject) {
+            var request = new XMLHttpRequest(),
+                url = baseUrl + '/decisions-api/decisions/' + id + '/';
+
+            request.onload = function () {
+                if (this.status == 204) {
+                    resolve(this.responseText);
+                } else {
+                    reject(this.responseText);
+                }
+            };
+
+            request.open('DELETE', url, true);
+            request.setRequestHeader("X-CSRFToken", csrftoken);
+            request.send(null);
+        });
+    },
+
     _vote_xhr: function _vote_xhr(choiceId) {
         return new Promise(function (resolve, reject) {
             var request = new XMLHttpRequest(),

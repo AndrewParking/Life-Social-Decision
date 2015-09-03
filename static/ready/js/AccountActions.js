@@ -61,6 +61,13 @@ var AccountActions = {
             actionType: AccountConstants.CREATE_DECISION,
             data: data
         });
+    },
+
+    deleteDecision: function deleteDecision(id) {
+        AppDispatcher.dispatch({
+            actionType: AccountConstants.DELETE_DECISION,
+            id: id
+        });
     }
 
 };

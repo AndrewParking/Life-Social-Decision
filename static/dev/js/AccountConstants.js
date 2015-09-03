@@ -11,4 +11,5 @@ module.exports = keyMirror({
     VOTE: null,
     CANCEL_VOTE: null,
     CREATE_DECISION: null,
+    DELETE_DECISION: null,
 });

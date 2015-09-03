@@ -8,6 +8,7 @@ class OwnDecisionItemComponent extends React.Component {
     constructor() {
         super();
         this.getMaxVotes = this.getMaxVotes.bind(this);
+        this.deleteDecision = this.deleteDecision.bind(this);
     }
 
     getMaxVotes() {
@@ -19,6 +20,10 @@ class OwnDecisionItemComponent extends React.Component {
             }
         }
         return maxVotes;
+    }
+
+    deleteDecision() {
+        AccountActions.deleteDecision(this.props.data.id);
     }
 
     render() {
@@ -42,7 +47,10 @@ class OwnDecisionItemComponent extends React.Component {
         return (
             <div className="decision">
     			<div className="panel-body">
-        		    <h4>{this.props.data.heading}</h4>
+        		    <h4>
+                        {this.props.data.heading}
+                        <button className="pull-right del-decision" onClick={this.deleteDecision}>x</button>
+                    </h4>
                     <div className="decision-content">
                         <p>{this.props.data.content}</p>
                         <div className="choices-list">

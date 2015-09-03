@@ -255,9 +255,30 @@ header
 .decision
 
     h4
-        padding 20px 20px
-        margin 0
+        padding 20px
+        margin-bottom 0
         background #dddddd
+        position relative
+
+        button
+            position absolute
+            top 32px
+            right 30px
+            display block
+            height 50px
+            width 50px
+            line-height 50px
+            text-align center
+            border-radius 50%
+            background #f04d22
+            color #fff
+            box-shadow 0 0 0 #fff
+            border 0px solid red
+            transition background .4s ease-in-out, box-shadow .4s ease-in-out
+
+            &:hover
+                background #d73434
+                box-shadow 0 2px 2px #333;
 
     .decision-content
         padding 20px 20px
