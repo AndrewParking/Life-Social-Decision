@@ -246,23 +246,8 @@ header ul li a:hover {
 }
 .decision h4 button {
   position: absolute;
-  top: 32px;
-  right: 30px;
-  display: block;
-  height: 50px;
-  width: 50px;
-  line-height: 50px;
-  text-align: center;
-  border-radius: 50%;
-  background: #f04d22;
-  color: #fff;
-  box-shadow: 0 0 0 #fff;
-  border: 0px solid #f00;
-  transition: background 0.4s ease-in-out, box-shadow 0.4s ease-in-out;
-}
-.decision h4 button:hover {
-  background: #d73434;
-  box-shadow: 0 2px 2px #333;
+  top: 13px;
+  right: 13px;
 }
 .decision .decision-content {
   padding: 20px 20px;
@@ -293,12 +278,15 @@ header ul li a:hover {
   border-radius: 3px;
   background: #269ef5;
 }
+.decision .choices-list .indicator-chosen {
+  background: #5df23f;
+}
 .decision {
   position: relative;
 }
 .decision .cancel-vote {
   position: absolute;
-  top: 28px;
+  top: 38px;
   right: 30px;
 }
 .decision-creation-form {
@@ -321,8 +309,24 @@ header ul li a:hover {
   border: 1px solid #4285f4;
   border-bottom: 4px solid #4285f4;
 }
-.add-more-btn {
+.add-more-btn,
+.create-btn {
   margin-right: 10px;
+}
+.show-creation-form {
+  width: 100%;
+  height: 60px;
+  text-align: center;
+  line-height: 60px;
+  padding: 0;
+  border: 0 solid #f00;
+  border-radius: 2px;
+  font-size: 16px;
+  box-shadow: 0 0 0 #fff;
+  transition: box-shadow 0.4s ease-in-out;
+}
+.show-creation-form:hover {
+  box-shadow: 0 2px 5px #888;
 }
 .decisions-heading {
   padding-left: 15px;

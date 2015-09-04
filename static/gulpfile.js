@@ -41,6 +41,6 @@ gulp.task('general-for-jsx', function() {
 });
 
 gulp.task('default', function () {
-    gulp.watch('./**/*.styl', ['stylus']);
+    gulp.watch('./dev/css/*.styl', ['stylus']);
     gulp.watch('./dev/js/*', ['general-for-jsx']);
 });

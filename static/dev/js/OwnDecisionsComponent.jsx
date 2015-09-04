@@ -11,6 +11,7 @@ class OwnDecisionsComponent extends React.Component {
         this.state = {
             decisions: AccountStore.OwnDecisions,
             choicesInputCount: 2,
+            formShown: false,
         };
         console.log('decisions ==> ', this.state.decisions);
         this._onChange = this._onChange.bind(this);
@@ -18,6 +19,9 @@ class OwnDecisionsComponent extends React.Component {
         this.addOneChoice = this.addOneChoice.bind(this);
         this.createDecision = this.createDecision.bind(this);
         this.clearInputs = this.clearInputs.bind(this);
+        this.showForm = this.showForm.bind(this);
+        this.hideForm = this.hideForm.bind(this);
+        this.getDecisionForm = this.getDecisionForm.bind(this);
     }
 
     componentDidMount() {
@@ -26,6 +30,26 @@ class OwnDecisionsComponent extends React.Component {
 
     componentWillUnmount() {
         AccountStore.removeChangeListener(this._onChange);
+    }
+
+    showForm() {
+        this.setState(prevState => {
+            return {
+                decisions: prevState.decisions,
+                choicesInputCount: prevState.choicesInputCount,
+                formShown: true,
+            }
+        });
+    }
+
+    hideForm() {
+        this.setState(prevState => {
+            return {
+                decisions: prevState.decisions,
+                choicesInputCount: 2,
+                formShown: false,
+            }
+        });
     }
 
     clearInputs() {
@@ -38,7 +62,8 @@ class OwnDecisionsComponent extends React.Component {
         this.setState(prevState => {
             return {
                 decisions: prevState.decisions,
-                choicesInputCount: 2
+                choicesInputCount: 2,
+                formShown: false,
             }
         });
     }
@@ -48,6 +73,7 @@ class OwnDecisionsComponent extends React.Component {
             return {
                 decisions: AccountStore.OwnDecisions,
                 choicesInputCount: prevState.choicesInputCount,
+                formShown: prevState.formShown,
             };
         });
     }
@@ -57,7 +83,8 @@ class OwnDecisionsComponent extends React.Component {
         this.setState(prevState => {
             return {
                 decisions: prevState.decisions,
-                choicesInputCount: prevState.choicesInputCount + 1
+                choicesInputCount: prevState.choicesInputCount + 1,
+                formShown: prevState.formShown,
             };
         });
     }
@@ -75,6 +102,29 @@ class OwnDecisionsComponent extends React.Component {
             return input;
         });
         return result;
+    }
+
+    getDecisionForm() {
+        if (this.state.formShown) {
+            let choicesList = this.getChoicesInputs();
+            return (
+                <div className="decision-creation-form">
+                    <h4>Add new decision:</h4>
+                    <input id="decision-heading" placeholder="Heading..." />
+                    <textarea id="decision-content" placeholder="Content..."></textarea>
+                    {choicesList}
+                    <button className="btn btn-primary add-more-btn" onClick={this.addOneChoice}>Add more</button>
+                    <button className="btn btn-success create-btn" onClick={this.createDecision}>Create decision</button>
+                    <button className="btn btn-warning" onClick={this.hideForm}>Cancel creation</button>
+                </div>
+            );
+        } else {
+            return (
+                <div className="decision-creation-form">
+                    <button className="show-creation-form" onClick={this.showForm}>Create new decision</button>
+                </div>
+            );
+        }
     }
 
     createDecision() {
@@ -96,20 +146,13 @@ class OwnDecisionsComponent extends React.Component {
     }
 
     render() {
-        let choicesList = this.getChoicesInputs(),
+        let decisionForm = this.getDecisionForm(),
             decisionsList = this.state.decisions.reverse().map(decision => {
             return <OwnDecisionItemComponent data={decision} key={decision.id} />
         });
         return (
             <div>
-                <div className="decision-creation-form">
-                    <h4>Add new decision:</h4>
-                    <input id="decision-heading" placeholder="Heading..." />
-                    <textarea id="decision-content" placeholder="Content..."></textarea>
-                    {choicesList}
-                    <button className="btn btn-primary add-more-btn" onClick={this.addOneChoice}>Add more</button>
-                    <button className="btn btn-success" onClick={this.createDecision}>Create decision</button>
-                </div>
+                {decisionForm}
                 <div>
                     <h4 className="decisions-heading">Your decisions:</h4>
                     {decisionsList}

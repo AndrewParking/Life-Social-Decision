@@ -31282,6 +31282,7 @@ var AppDispatcher = require('./AppDispatcher'),
 
 var _get_foreign_decisions = require('./XHRequest')._get_foreign_decisions,
     _get_own_decisions = require('./XHRequest')._get_own_decisions,
+    _get_votes = require('./XHRequest')._get_votes,
     _create_decision_xhr = require('./XHRequest')._create_decision_xhr,
     _delete_decision_xhr = require('./XHRequest')._delete_decision_xhr,
     _vote_xhr = require('./XHRequest')._vote_xhr,
@@ -31295,7 +31296,8 @@ var _get_foreign_decisions = require('./XHRequest')._get_foreign_decisions,
 
 var csrftoken = require('./utils').csrftoken;
 
-var _following = [],
+var _votes = [],
+    _following = [],
     _decisions = [],
     _own_decisions = [],
     _incoming_messages = [],
@@ -31334,6 +31336,14 @@ var AccountStoreClass = (function (_EventEmitter) {
         },
         set: function set(newValue) {
             _decisions = newValue;
+        }
+    }, {
+        key: 'Votes',
+        get: function get() {
+            return _votes;
+        },
+        set: function set(newValue) {
+            _votes = newValue;
         }
     }, {
         key: 'OwnDecisions',
@@ -31469,11 +31479,12 @@ AppDispatcher.register(function (payload) {
         case AccountConstants.VOTE:
             _vote_xhr(payload.choiceId).then(function (result) {
                 console.log('voted successfully');
-                return _get_foreign_decisions();
+                return Promise.all([_get_foreign_decisions(), _get_votes()]);
             }, function (error) {
                 console.log('voting failed');
-            }).then(function (result) {
-                AccountStore.Decisions = result;
+            }).then(function (results) {
+                AccountStore.Decisions = results[0];
+                AccountStore.Votes = results[1];
                 AccountStore.emitChange();
                 console.log('decisions got');
             }, null);
@@ -31482,11 +31493,12 @@ AppDispatcher.register(function (payload) {
         case AccountConstants.CANCEL_VOTE:
             _cancel_vote_xhr(payload.decisionId).then(function (result) {
                 console.log('vote cancelled successfully');
-                return _get_foreign_decisions();
+                return Promise.all([_get_foreign_decisions(), _get_votes()]);
             }, function (error) {
                 console.log('vote cancelling failed');
-            }).then(function (result) {
-                AccountStore.Decisions = result;
+            }).then(function (results) {
+                AccountStore.Decisions = results[0];
+                AccountStore.Votes = results[1];
                 AccountStore.emitChange();
             }, null);
             break;
@@ -31550,6 +31562,7 @@ var DecisionItemComponent = (function (_React$Component) {
         _get(Object.getPrototypeOf(DecisionItemComponent.prototype), 'constructor', this).call(this);
         this.getMaxVotes = this.getMaxVotes.bind(this);
         this.vote = this.vote.bind(this);
+        this.getIndicatorClass = this.getIndicatorClass.bind(this);
         this.cancelVote = this.cancelVote.bind(this);
         this.getCancelVoteButton = this.getCancelVoteButton.bind(this);
     }
@@ -31599,6 +31612,41 @@ var DecisionItemComponent = (function (_React$Component) {
             return maxVotes;
         }
     }, {
+        key: 'getIndicatorClass',
+        value: function getIndicatorClass(id) {
+            var votes = AccountStore.Votes,
+                found = false;
+            var _iteratorNormalCompletion2 = true;
+            var _didIteratorError2 = false;
+            var _iteratorError2 = undefined;
+
+            try {
+                for (var _iterator2 = votes[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var vote = _step2.value;
+
+                    if (vote.choice === id) {
+                        found = true;
+                        break;
+                    }
+                }
+            } catch (err) {
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion2 && _iterator2['return']) {
+                        _iterator2['return']();
+                    }
+                } finally {
+                    if (_didIteratorError2) {
+                        throw _iteratorError2;
+                    }
+                }
+            }
+
+            return found;
+        }
+    }, {
         key: 'getCancelVoteButton',
         value: function getCancelVoteButton() {
             if (this.props.data.already_voted) {
@@ -31617,7 +31665,8 @@ var DecisionItemComponent = (function (_React$Component) {
 
             // getting choice list
             choices_list = this.props.data.choices.map(function (choice) {
-                var widthStyle = {
+                var indClass = _this.getIndicatorClass(choice.id) ? 'indicator indicator-chosen' : 'indicator',
+                    widthStyle = {
                     width: maxVotes !== 0 ? Math.floor(choice.votes / maxVotes) * 450 + 20 : 20
                 },
                     voteLink = undefined;
@@ -31629,7 +31678,7 @@ var DecisionItemComponent = (function (_React$Component) {
                     voteLink = React.createElement("p", { className: "vote-link" }, React.createElement("a", { onClick: _this.vote.bind(_this, choice.id) }, choice.content), React.createElement("span", null, choice.votes));
                 }
 
-                return React.createElement("div", { className: "choice", key: choice.id }, voteLink, React.createElement("div", { className: "indicator", style: widthStyle }));
+                return React.createElement("div", { className: "choice", key: choice.id }, voteLink, React.createElement("div", { className: indClass, style: widthStyle }));
             });
 
             return React.createElement("div", { className: "decision" }, React.createElement("div", { className: "panel-body" }, React.createElement("h4", null, this.props.data.heading), React.createElement("div", { className: "decision-content" }, cancelVoteButton, React.createElement("p", null, this.props.data.content), React.createElement("div", { className: "choices-list" }, choices_list))));
@@ -32324,7 +32373,7 @@ var OwnDecisionItemComponent = (function (_React$Component) {
                 return React.createElement("div", { className: "choice", key: choice.id }, React.createElement("p", { className: "vote-link" }, React.createElement("a", { className: "not-active" }, choice.content), React.createElement("span", null, choice.votes)), React.createElement("div", { className: "indicator", style: widthStyle }));
             });
 
-            return React.createElement("div", { className: "decision" }, React.createElement("div", { className: "panel-body" }, React.createElement("h4", null, this.props.data.heading, React.createElement("button", { className: "pull-right del-decision", onClick: this.deleteDecision }, "x")), React.createElement("div", { className: "decision-content" }, React.createElement("p", null, this.props.data.content), React.createElement("div", { className: "choices-list" }, choices_list))));
+            return React.createElement("div", { className: "decision" }, React.createElement("div", { className: "panel-body" }, React.createElement("h4", null, this.props.data.heading, React.createElement("button", { className: "btn btn-primary", onClick: this.deleteDecision }, "Delete")), React.createElement("div", { className: "decision-content" }, React.createElement("p", null, this.props.data.content), React.createElement("div", { className: "choices-list" }, choices_list))));
         }
     }]);
 
@@ -32357,7 +32406,8 @@ var OwnDecisionsComponent = (function (_React$Component) {
         _get(Object.getPrototypeOf(OwnDecisionsComponent.prototype), 'constructor', this).call(this);
         this.state = {
             decisions: AccountStore.OwnDecisions,
-            choicesInputCount: 2
+            choicesInputCount: 2,
+            formShown: false
         };
         console.log('decisions ==> ', this.state.decisions);
         this._onChange = this._onChange.bind(this);
@@ -32365,6 +32415,9 @@ var OwnDecisionsComponent = (function (_React$Component) {
         this.addOneChoice = this.addOneChoice.bind(this);
         this.createDecision = this.createDecision.bind(this);
         this.clearInputs = this.clearInputs.bind(this);
+        this.showForm = this.showForm.bind(this);
+        this.hideForm = this.hideForm.bind(this);
+        this.getDecisionForm = this.getDecisionForm.bind(this);
     }
 
     _createClass(OwnDecisionsComponent, [{
@@ -32378,6 +32431,28 @@ var OwnDecisionsComponent = (function (_React$Component) {
             AccountStore.removeChangeListener(this._onChange);
         }
     }, {
+        key: 'showForm',
+        value: function showForm() {
+            this.setState(function (prevState) {
+                return {
+                    decisions: prevState.decisions,
+                    choicesInputCount: prevState.choicesInputCount,
+                    formShown: true
+                };
+            });
+        }
+    }, {
+        key: 'hideForm',
+        value: function hideForm() {
+            this.setState(function (prevState) {
+                return {
+                    decisions: prevState.decisions,
+                    choicesInputCount: 2,
+                    formShown: false
+                };
+            });
+        }
+    }, {
         key: 'clearInputs',
         value: function clearInputs() {
             document.getElementById('decision-heading').value = '';
@@ -32389,7 +32464,8 @@ var OwnDecisionsComponent = (function (_React$Component) {
             this.setState(function (prevState) {
                 return {
                     decisions: prevState.decisions,
-                    choicesInputCount: 2
+                    choicesInputCount: 2,
+                    formShown: false
                 };
             });
         }
@@ -32399,7 +32475,8 @@ var OwnDecisionsComponent = (function (_React$Component) {
             this.setState(function (prevState) {
                 return {
                     decisions: AccountStore.OwnDecisions,
-                    choicesInputCount: prevState.choicesInputCount
+                    choicesInputCount: prevState.choicesInputCount,
+                    formShown: prevState.formShown
                 };
             });
         }
@@ -32410,7 +32487,8 @@ var OwnDecisionsComponent = (function (_React$Component) {
             this.setState(function (prevState) {
                 return {
                     decisions: prevState.decisions,
-                    choicesInputCount: prevState.choicesInputCount + 1
+                    choicesInputCount: prevState.choicesInputCount + 1,
+                    formShown: prevState.formShown
                 };
             });
         }
@@ -32429,6 +32507,16 @@ var OwnDecisionsComponent = (function (_React$Component) {
                 return input;
             });
             return result;
+        }
+    }, {
+        key: 'getDecisionForm',
+        value: function getDecisionForm() {
+            if (this.state.formShown) {
+                var choicesList = this.getChoicesInputs();
+                return React.createElement("div", { className: "decision-creation-form" }, React.createElement("h4", null, "Add new decision:"), React.createElement("input", { id: "decision-heading", placeholder: "Heading..." }), React.createElement("textarea", { id: "decision-content", placeholder: "Content..." }), choicesList, React.createElement("button", { className: "btn btn-primary add-more-btn", onClick: this.addOneChoice }, "Add more"), React.createElement("button", { className: "btn btn-success create-btn", onClick: this.createDecision }, "Create decision"), React.createElement("button", { className: "btn btn-warning", onClick: this.hideForm }, "Cancel creation"));
+            } else {
+                return React.createElement("div", { className: "decision-creation-form" }, React.createElement("button", { className: "show-creation-form", onClick: this.showForm }, "Create new decision"));
+            }
         }
     }, {
         key: 'createDecision',
@@ -32452,11 +32540,11 @@ var OwnDecisionsComponent = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var choicesList = this.getChoicesInputs(),
+            var decisionForm = this.getDecisionForm(),
                 decisionsList = this.state.decisions.reverse().map(function (decision) {
                 return React.createElement(OwnDecisionItemComponent, { data: decision, key: decision.id });
             });
-            return React.createElement("div", null, React.createElement("div", { className: "decision-creation-form" }, React.createElement("h4", null, "Add new decision:"), React.createElement("input", { id: "decision-heading", placeholder: "Heading..." }), React.createElement("textarea", { id: "decision-content", placeholder: "Content..." }), choicesList, React.createElement("button", { className: "btn btn-primary add-more-btn", onClick: this.addOneChoice }, "Add more"), React.createElement("button", { className: "btn btn-success", onClick: this.createDecision }, "Create decision")), React.createElement("div", null, React.createElement("h4", { className: "decisions-heading" }, "Your decisions:"), decisionsList));
+            return React.createElement("div", null, decisionForm, React.createElement("div", null, React.createElement("h4", { className: "decisions-heading" }, "Your decisions:"), decisionsList));
         }
     }]);
 
@@ -32739,6 +32827,24 @@ module.exports = {
             request.open('GET', url, true);
             request.send(null);
         });
+    },
+
+    _get_votes: function _get_votes() {
+        return new Promise(function (resolve, reject) {
+            var request = new XMLHttpRequest(),
+                url = baseUrl + '/decisions-api/votes/';
+
+            request.onload = function () {
+                if (this.status == 200) {
+                    resolve(JSON.parse(this.responseText));
+                } else {
+                    reject(this.responseText);
+                }
+            };
+
+            request.open('GET', url, true);
+            request.send(null);
+        });
     }
 
 };
@@ -32764,6 +32870,7 @@ var follow_container = document.getElementById('follow-button-container'),
     message_container = document.getElementById('messages-container');
 
 var _get_foreign_decisions = require('./XHRequest')._get_foreign_decisions,
+    _get_votes = require('./XHRequest')._get_votes,
     _get_own_decisions = require('./XHRequest')._get_own_decisions,
     _get_following_data = require('./XHRequest')._get_following_data,
     _get_incoming_messages = require('./XHRequest')._get_incoming_messages,
@@ -32786,9 +32893,10 @@ if (own_decisions_container !== null) {
 
 // FOREIGN PROFILE PAGE
 if (follow_container !== null) {
-    Promise.all([_get_following_data(), _get_foreign_decisions()]).then(function (results) {
+    Promise.all([_get_following_data(), _get_foreign_decisions(), _get_votes()]).then(function (results) {
         AccountStore.FollowingData = results[0];
         AccountStore.Decisions = results[1];
+        AccountStore.Votes = results[2];
         React.render(React.createElement(FollowButtonComponent, { accountId: accountId }), follow_container);
         React.render(React.createElement(First3Component, null), fol_list_container);
         React.render(React.createElement(DecisionsComponent, null), decisions_container);

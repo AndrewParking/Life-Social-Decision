@@ -276,4 +276,22 @@ module.exports = {
         });
     },
 
+    _get_votes() {
+        return new Promise(function(resolve, reject) {
+            var request = new XMLHttpRequest(),
+                url = baseUrl + '/decisions-api/votes/';
+
+            request.onload = function () {
+                if (this.status == 200) {
+                    resolve(JSON.parse(this.responseText));
+                } else {
+                    reject(this.responseText);
+                }
+            };
+
+            request.open('GET', url, true);
+            request.send(null);
+        });
+    },
+
 }

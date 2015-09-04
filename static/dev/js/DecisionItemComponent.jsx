@@ -9,6 +9,7 @@ class DecisionItemComponent extends React.Component {
         super();
         this.getMaxVotes = this.getMaxVotes.bind(this);
         this.vote = this.vote.bind(this);
+        this.getIndicatorClass = this.getIndicatorClass.bind(this);
         this.cancelVote = this.cancelVote.bind(this);
         this.getCancelVoteButton = this.getCancelVoteButton.bind(this);
     }
@@ -32,6 +33,18 @@ class DecisionItemComponent extends React.Component {
         return maxVotes;
     }
 
+    getIndicatorClass(id) {
+        let votes = AccountStore.Votes,
+            found = false;
+        for (let vote of votes) {
+            if (vote.choice === id) {
+                found = true;
+                break;
+            }
+        }
+        return found;
+    }
+
     getCancelVoteButton() {
         if (this.props.data.already_voted) {
             return (
@@ -47,7 +60,8 @@ class DecisionItemComponent extends React.Component {
             cancelVoteButton = this.getCancelVoteButton(),
             // getting choice list
             choices_list = this.props.data.choices.map(choice => {
-                let widthStyle = {
+                let indClass = this.getIndicatorClass(choice.id) ? 'indicator indicator-chosen' : 'indicator',
+                    widthStyle = {
                         width: maxVotes !== 0 ? Math.floor(choice.votes/maxVotes)*450 + 20 : 20
                     }, voteLink;
 
@@ -71,7 +85,7 @@ class DecisionItemComponent extends React.Component {
                 return (
                     <div className="choice" key={choice.id}>
                         {voteLink}
-                        <div className="indicator" style={widthStyle}></div>
+                        <div className={indClass} style={widthStyle}></div>
                     </div>
                 );
             });

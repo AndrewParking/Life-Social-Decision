@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from .models import Message
 from .serializers import MessageSerializer, AjaxMessageSerializer
 from .permissions import IsConnectedOrNotAllowed, IsAuthenticatedOrNotAllowed
+from .tasks import in_message_notification
 
 # Create your views here.
 
@@ -38,7 +39,9 @@ class MessagesViewSet(viewsets.ModelViewSet):
         return Message.objects.filter(Q(from_account=user)|Q(to_account=user))
 
     def perform_create(self, serializer):
-        serializer.save(from_account=self.request.user)
+        message = serializer.save(from_account=self.request.user)
+        # task in_message_notification, args: message.to_account.id
+        in_message_notification.delay(message.to_account.id)
 
     @list_route(methods=['get'])
     def incoming(self, request):

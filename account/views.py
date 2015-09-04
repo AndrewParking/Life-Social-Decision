@@ -16,6 +16,7 @@ from .forms import CreateAccountForm, UpdateAccountForm
 from .models import Account
 from .serializers import AccountSerializer, ShortSerializer
 from .permissions import IsAdminOrReadOnly, SafeMethodsOnly
+from .tasks import send_login_email
 
 # ===========================================
 # ================= Mixins ==================
@@ -117,6 +118,7 @@ class LoginView(RedirectAuthedUserMixin, FormView):
         user = form.get_user()
         form.confirm_login_allowed(user)
         login(self.request, user)
+        send_login_email.delay(self.request.user.id)
         return super(LoginView, self).form_valid(form)
 
 

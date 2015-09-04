@@ -75,7 +75,7 @@ var OwnDecisionItemComponent = (function (_React$Component) {
                 return React.createElement("div", { className: "choice", key: choice.id }, React.createElement("p", { className: "vote-link" }, React.createElement("a", { className: "not-active" }, choice.content), React.createElement("span", null, choice.votes)), React.createElement("div", { className: "indicator", style: widthStyle }));
             });
 
-            return React.createElement("div", { className: "decision" }, React.createElement("div", { className: "panel-body" }, React.createElement("h4", null, this.props.data.heading, React.createElement("button", { className: "pull-right del-decision", onClick: this.deleteDecision }, "x")), React.createElement("div", { className: "decision-content" }, React.createElement("p", null, this.props.data.content), React.createElement("div", { className: "choices-list" }, choices_list))));
+            return React.createElement("div", { className: "decision" }, React.createElement("div", { className: "panel-body" }, React.createElement("h4", null, this.props.data.heading, React.createElement("button", { className: "btn btn-primary", onClick: this.deleteDecision }, "Delete")), React.createElement("div", { className: "decision-content" }, React.createElement("p", null, this.props.data.content), React.createElement("div", { className: "choices-list" }, choices_list))));
         }
     }]);
 

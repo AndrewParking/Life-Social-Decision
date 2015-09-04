@@ -16,6 +16,7 @@ var AppDispatcher = require('./AppDispatcher'),
 
 var _get_foreign_decisions = require('./XHRequest')._get_foreign_decisions,
     _get_own_decisions = require('./XHRequest')._get_own_decisions,
+    _get_votes = require('./XHRequest')._get_votes,
     _create_decision_xhr = require('./XHRequest')._create_decision_xhr,
     _delete_decision_xhr = require('./XHRequest')._delete_decision_xhr,
     _vote_xhr = require('./XHRequest')._vote_xhr,
@@ -29,7 +30,8 @@ var _get_foreign_decisions = require('./XHRequest')._get_foreign_decisions,
 
 var csrftoken = require('./utils').csrftoken;
 
-var _following = [],
+var _votes = [],
+    _following = [],
     _decisions = [],
     _own_decisions = [],
     _incoming_messages = [],
@@ -68,6 +70,14 @@ var AccountStoreClass = (function (_EventEmitter) {
         },
         set: function set(newValue) {
             _decisions = newValue;
+        }
+    }, {
+        key: 'Votes',
+        get: function get() {
+            return _votes;
+        },
+        set: function set(newValue) {
+            _votes = newValue;
         }
     }, {
         key: 'OwnDecisions',
@@ -203,11 +213,12 @@ AppDispatcher.register(function (payload) {
         case AccountConstants.VOTE:
             _vote_xhr(payload.choiceId).then(function (result) {
                 console.log('voted successfully');
-                return _get_foreign_decisions();
+                return Promise.all([_get_foreign_decisions(), _get_votes()]);
             }, function (error) {
                 console.log('voting failed');
-            }).then(function (result) {
-                AccountStore.Decisions = result;
+            }).then(function (results) {
+                AccountStore.Decisions = results[0];
+                AccountStore.Votes = results[1];
                 AccountStore.emitChange();
                 console.log('decisions got');
             }, null);
@@ -216,11 +227,12 @@ AppDispatcher.register(function (payload) {
         case AccountConstants.CANCEL_VOTE:
             _cancel_vote_xhr(payload.decisionId).then(function (result) {
                 console.log('vote cancelled successfully');
-                return _get_foreign_decisions();
+                return Promise.all([_get_foreign_decisions(), _get_votes()]);
             }, function (error) {
                 console.log('vote cancelling failed');
-            }).then(function (result) {
-                AccountStore.Decisions = result;
+            }).then(function (results) {
+                AccountStore.Decisions = results[0];
+                AccountStore.Votes = results[1];
                 AccountStore.emitChange();
             }, null);
             break;

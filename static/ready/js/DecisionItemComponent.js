@@ -21,6 +21,7 @@ var DecisionItemComponent = (function (_React$Component) {
         _get(Object.getPrototypeOf(DecisionItemComponent.prototype), 'constructor', this).call(this);
         this.getMaxVotes = this.getMaxVotes.bind(this);
         this.vote = this.vote.bind(this);
+        this.getIndicatorClass = this.getIndicatorClass.bind(this);
         this.cancelVote = this.cancelVote.bind(this);
         this.getCancelVoteButton = this.getCancelVoteButton.bind(this);
     }
@@ -70,6 +71,41 @@ var DecisionItemComponent = (function (_React$Component) {
             return maxVotes;
         }
     }, {
+        key: 'getIndicatorClass',
+        value: function getIndicatorClass(id) {
+            var votes = AccountStore.Votes,
+                found = false;
+            var _iteratorNormalCompletion2 = true;
+            var _didIteratorError2 = false;
+            var _iteratorError2 = undefined;
+
+            try {
+                for (var _iterator2 = votes[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var vote = _step2.value;
+
+                    if (vote.choice === id) {
+                        found = true;
+                        break;
+                    }
+                }
+            } catch (err) {
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion2 && _iterator2['return']) {
+                        _iterator2['return']();
+                    }
+                } finally {
+                    if (_didIteratorError2) {
+                        throw _iteratorError2;
+                    }
+                }
+            }
+
+            return found;
+        }
+    }, {
         key: 'getCancelVoteButton',
         value: function getCancelVoteButton() {
             if (this.props.data.already_voted) {
@@ -88,7 +124,8 @@ var DecisionItemComponent = (function (_React$Component) {
 
             // getting choice list
             choices_list = this.props.data.choices.map(function (choice) {
-                var widthStyle = {
+                var indClass = _this.getIndicatorClass(choice.id) ? 'indicator indicator-chosen' : 'indicator',
+                    widthStyle = {
                     width: maxVotes !== 0 ? Math.floor(choice.votes / maxVotes) * 450 + 20 : 20
                 },
                     voteLink = undefined;
@@ -100,7 +137,7 @@ var DecisionItemComponent = (function (_React$Component) {
                     voteLink = React.createElement("p", { className: "vote-link" }, React.createElement("a", { onClick: _this.vote.bind(_this, choice.id) }, choice.content), React.createElement("span", null, choice.votes));
                 }
 
-                return React.createElement("div", { className: "choice", key: choice.id }, voteLink, React.createElement("div", { className: "indicator", style: widthStyle }));
+                return React.createElement("div", { className: "choice", key: choice.id }, voteLink, React.createElement("div", { className: indClass, style: widthStyle }));
             });
 
             return React.createElement("div", { className: "decision" }, React.createElement("div", { className: "panel-body" }, React.createElement("h4", null, this.props.data.heading), React.createElement("div", { className: "decision-content" }, cancelVoteButton, React.createElement("p", null, this.props.data.content), React.createElement("div", { className: "choices-list" }, choices_list))));

@@ -19,6 +19,7 @@ var follow_container = document.getElementById('follow-button-container'),
 
 
 var _get_foreign_decisions = require('./XHRequest')._get_foreign_decisions,
+    _get_votes = require('./XHRequest')._get_votes,
     _get_own_decisions = require('./XHRequest')._get_own_decisions,
     _get_following_data = require('./XHRequest')._get_following_data,
     _get_incoming_messages = require('./XHRequest')._get_incoming_messages,
@@ -50,10 +51,12 @@ if (own_decisions_container !== null) {
 if (follow_container !== null) {
     Promise.all([
         _get_following_data(),
-        _get_foreign_decisions()
+        _get_foreign_decisions(),
+        _get_votes()
     ]).then(results => {
             AccountStore.FollowingData = results[0];
             AccountStore.Decisions = results[1];
+            AccountStore.Votes = results[2];
             React.render(
                 <FollowButtonComponent accountId={accountId} />,
                 follow_container

@@ -22,7 +22,8 @@ var OwnDecisionsComponent = (function (_React$Component) {
         _get(Object.getPrototypeOf(OwnDecisionsComponent.prototype), 'constructor', this).call(this);
         this.state = {
             decisions: AccountStore.OwnDecisions,
-            choicesInputCount: 2
+            choicesInputCount: 2,
+            formShown: false
         };
         console.log('decisions ==> ', this.state.decisions);
         this._onChange = this._onChange.bind(this);
@@ -30,6 +31,9 @@ var OwnDecisionsComponent = (function (_React$Component) {
         this.addOneChoice = this.addOneChoice.bind(this);
         this.createDecision = this.createDecision.bind(this);
         this.clearInputs = this.clearInputs.bind(this);
+        this.showForm = this.showForm.bind(this);
+        this.hideForm = this.hideForm.bind(this);
+        this.getDecisionForm = this.getDecisionForm.bind(this);
     }
 
     _createClass(OwnDecisionsComponent, [{
@@ -43,6 +47,28 @@ var OwnDecisionsComponent = (function (_React$Component) {
             AccountStore.removeChangeListener(this._onChange);
         }
     }, {
+        key: 'showForm',
+        value: function showForm() {
+            this.setState(function (prevState) {
+                return {
+                    decisions: prevState.decisions,
+                    choicesInputCount: prevState.choicesInputCount,
+                    formShown: true
+                };
+            });
+        }
+    }, {
+        key: 'hideForm',
+        value: function hideForm() {
+            this.setState(function (prevState) {
+                return {
+                    decisions: prevState.decisions,
+                    choicesInputCount: 2,
+                    formShown: false
+                };
+            });
+        }
+    }, {
         key: 'clearInputs',
         value: function clearInputs() {
             document.getElementById('decision-heading').value = '';
@@ -54,7 +80,8 @@ var OwnDecisionsComponent = (function (_React$Component) {
             this.setState(function (prevState) {
                 return {
                     decisions: prevState.decisions,
-                    choicesInputCount: 2
+                    choicesInputCount: 2,
+                    formShown: false
                 };
             });
         }
@@ -64,7 +91,8 @@ var OwnDecisionsComponent = (function (_React$Component) {
             this.setState(function (prevState) {
                 return {
                     decisions: AccountStore.OwnDecisions,
-                    choicesInputCount: prevState.choicesInputCount
+                    choicesInputCount: prevState.choicesInputCount,
+                    formShown: prevState.formShown
                 };
             });
         }
@@ -75,7 +103,8 @@ var OwnDecisionsComponent = (function (_React$Component) {
             this.setState(function (prevState) {
                 return {
                     decisions: prevState.decisions,
-                    choicesInputCount: prevState.choicesInputCount + 1
+                    choicesInputCount: prevState.choicesInputCount + 1,
+                    formShown: prevState.formShown
                 };
             });
         }
@@ -94,6 +123,16 @@ var OwnDecisionsComponent = (function (_React$Component) {
                 return input;
             });
             return result;
+        }
+    }, {
+        key: 'getDecisionForm',
+        value: function getDecisionForm() {
+            if (this.state.formShown) {
+                var choicesList = this.getChoicesInputs();
+                return React.createElement("div", { className: "decision-creation-form" }, React.createElement("h4", null, "Add new decision:"), React.createElement("input", { id: "decision-heading", placeholder: "Heading..." }), React.createElement("textarea", { id: "decision-content", placeholder: "Content..." }), choicesList, React.createElement("button", { className: "btn btn-primary add-more-btn", onClick: this.addOneChoice }, "Add more"), React.createElement("button", { className: "btn btn-success create-btn", onClick: this.createDecision }, "Create decision"), React.createElement("button", { className: "btn btn-warning", onClick: this.hideForm }, "Cancel creation"));
+            } else {
+                return React.createElement("div", { className: "decision-creation-form" }, React.createElement("button", { className: "show-creation-form", onClick: this.showForm }, "Create new decision"));
+            }
         }
     }, {
         key: 'createDecision',
@@ -117,11 +156,11 @@ var OwnDecisionsComponent = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var choicesList = this.getChoicesInputs(),
+            var decisionForm = this.getDecisionForm(),
                 decisionsList = this.state.decisions.reverse().map(function (decision) {
                 return React.createElement(OwnDecisionItemComponent, { data: decision, key: decision.id });
             });
-            return React.createElement("div", null, React.createElement("div", { className: "decision-creation-form" }, React.createElement("h4", null, "Add new decision:"), React.createElement("input", { id: "decision-heading", placeholder: "Heading..." }), React.createElement("textarea", { id: "decision-content", placeholder: "Content..." }), choicesList, React.createElement("button", { className: "btn btn-primary add-more-btn", onClick: this.addOneChoice }, "Add more"), React.createElement("button", { className: "btn btn-success", onClick: this.createDecision }, "Create decision")), React.createElement("div", null, React.createElement("h4", { className: "decisions-heading" }, "Your decisions:"), decisionsList));
+            return React.createElement("div", null, decisionForm, React.createElement("div", null, React.createElement("h4", { className: "decisions-heading" }, "Your decisions:"), decisionsList));
         }
     }]);
 

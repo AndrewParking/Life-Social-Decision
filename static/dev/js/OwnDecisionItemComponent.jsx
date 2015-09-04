@@ -49,7 +49,7 @@ class OwnDecisionItemComponent extends React.Component {
     			<div className="panel-body">
         		    <h4>
                         {this.props.data.heading}
-                        <button className="pull-right del-decision" onClick={this.deleteDecision}>x</button>
+                        <button className="btn btn-primary" onClick={this.deleteDecision}>Delete</button>
                     </h4>
                     <div className="decision-content">
                         <p>{this.props.data.content}</p>

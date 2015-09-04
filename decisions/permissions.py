@@ -7,13 +7,14 @@ class ReadListOnlyIfAlreadyVoted(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
-        try:
-            choice = Choice.objects.get(pk=request.data['choice'])
-            Vote.objects.get(decision=choice.decision, author=request.user)
-        except Vote.DoesNotExist:
-            return True
-        else:
-            return False
+        if request.data.get('choice', False):
+            try:
+                choice = Choice.objects.get(pk=request.data['choice'])
+                Vote.objects.get(decision=choice.decision, author=request.user)
+            except Vote.DoesNotExist:
+                return True
+            else:
+                return False
 
 
 class IsNotOwnerOfDecisionOrReadOnly(permissions.BasePermission):
@@ -21,9 +22,9 @@ class IsNotOwnerOfDecisionOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
-        choice = Choice.objects.get(pk=request.data['choice'])
-        return request.user != choice.decision.author
-
+        if request.data.get('choice', False):
+            choice = Choice.objects.get(pk=request.data['choice'])
+            return request.user != choice.decision.author
 
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
