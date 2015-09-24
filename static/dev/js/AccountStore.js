@@ -85,7 +85,7 @@ class AccountStoreClass extends EventEmitter {
     }
 
     removeChangeListener(callback) {
-        this.removeChangeListener('change', callback);
+        this.removeListener('change', callback);
     }
 
 }

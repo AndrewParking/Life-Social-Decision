@@ -16,7 +16,7 @@ class CreateAccountFormTest(TestCase):
         })
         self.assertTrue(form.is_valid())
 
-    def test_form_with_valid_data(self):
+    def test_form_with_invalid_data(self):
         form = CreateAccountForm({
             'email': 'pop111@tut.by',
             'phone': '+375333172375',
